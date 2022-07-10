@@ -1,20 +1,37 @@
 /*
- * @Author: lxk0301 https://gitee.com/lxk0301
- * @Date: 2020-08-19 16:12:40
- * @Last Modified by: whyour
- * @Last Modified time: 2021-5-1 15:00:54
  * sendNotify 推送通知功能
  * @param text 通知头
  * @param desp 通知体
  * @param params 某些推送通知方式点击弹窗可跳转, 例：{ url: 'https://abc.com' }
  * @param author 作者仓库等信息  例：`本通知 By：https://github.com/whyour/qinglong`
+ 部分变量设置
+## 拆分通知
+export BEANCHANGE_PERSENT="10"
+## 如果通知标题在此变量里面存在(&隔开),则用屏蔽不发送通知
+export NOTIFY_SKIP_LIST="京东CK检测&京东资产变动"
+## 当接收到发送CK失效通知和Ninja 运行通知时候执行子线程任务
+export NOTIFY_CKTASK="jd_CheckCK.js"
+## 如果此变量(&隔开)的关键字在通知内容里面存在,则屏蔽不发送通知.
+export NOTIFY_SKIP_TEXT="忘了种植&异常"
+## 屏蔽任务脚本的ck失效通知
+export NOTIFY_NOCKFALSE="true"
+## 服务器空数据等错误不触发通知
+export CKNOWARNERROR="true"
+## 屏蔽青龙登陆成功通知，登陆失败不屏蔽
+export NOTIFY_NOLOGINSUCCESS="true"
+## 通知底部显示
+export NOTIFY_AUTHOR="来源于：https://github.com/444444/KR"
+## 增加NOTIFY_AUTHOR_BLANK 环境变量，控制不显示底部信息
+export NOTIFY_AUTHOR_BLANK="true"
+## 增加NOTIFY_AUTOCHECKCK为true才开启通知脚本内置的自动禁用过期ck
+export NOTIFY_AUTOCHECKCK=“true”
  */
 //详细说明参考 https://github.com/ccwav/QLScript2.
 const querystring = require('querystring');
 const exec = require('child_process').exec;
 const $ = new Env();
 const timeout = 15000; //超时时间(单位毫秒)
-console.log("加载sendNotify，当前版本: 20220523");
+console.log("加载sendNotify，当前版本: 20220517");
 // =======================================go-cqhttp通知设置区域===========================================
 //gobot_url 填写请求地址http://127.0.0.1/send_private_msg
 //gobot_token 填写在go-cqhttp文件设置的访问密钥
@@ -183,10 +200,9 @@ if (process.env.NOTIFY_SHOWNAMETYPE) {
     if (ShowRemarkType == "4")
         console.log("检测到显示备注名称，格式为: 备注");
 }
-async function sendNotify(text, desp, params = {}, author = '\n\n本通知 By ccwav Mod', strsummary = "") {
-    console.log(`开始发送通知...`); 
-	
-	//NOTIFY_FILTERBYFILE代码来自Ca11back.
+async function sendNotify(text, desp, params = {}, author = '\n\n本通知 By https://github.com/444444/KR',strsummary="") {
+    console.log(`开始发送通知...`);
+
     if (process.env.NOTIFY_FILTERBYFILE) {
         var no_notify = process.env.NOTIFY_FILTERBYFILE.split('&');
         if (module.parent.filename) {
@@ -457,7 +473,7 @@ async function sendNotify(text, desp, params = {}, author = '\n\n本通知 By cc
             var strPtPin = await GetPtPin(text);
             var strdecPtPin = decodeURIComponent(strPtPin);
             if (strPtPin) {
-                await sendNotifybyWxPucher("汪汪乐园领取通知", `【京东账号】${strdecPtPin}\n当前等级: 30\n请自行去解锁新场景,奖励领取方式如下:\n极速版APP->我的->汪汪乐园,点击左上角头像，点击中间靠左的现金奖励图标，弹出历史奖励中点击领取.`, strdecPtPin);
+                await sendNotifybyWxPucher("汪汪乐园领取通知", `【京东账号】${strdecPtPin}\n当前等级: 30\n已自动领取最高等级奖励\n请前往京东极速版APP查看使用优惠券\n活动入口：京东极速版APP->我的->优惠券->京券`, strdecPtPin);
             }
         }
 
@@ -1377,7 +1393,7 @@ async function sendNotify(text, desp, params = {}, author = '\n\n本通知 By cc
                 }
 
                 if (allCode) {
-                    desp += '\n' + '\n' + "ccwav格式化后的互助码:" + '\n' + allCode;
+                    desp += '\n' + '\n' + "格式化后的互助码:" + '\n' + allCode;
                 }
             }
         }

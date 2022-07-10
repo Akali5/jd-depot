@@ -1,2 +1,8 @@
 config
 .gitgnore
+.idea
+QuantumultX
+Loon
+Surge
+activity
+gua_*.js

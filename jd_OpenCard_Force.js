@@ -12,7 +12,7 @@
 ## 最小入会值 （默认10）
 //export OPENCARD_BEAN=""
 
-cron:10 10 10 10 *
+cron:6 6 6 6 *
 ============Quantumultx===============
 [task_local]
 #入会开卡领取礼包(通用)
@@ -96,6 +96,16 @@ async function run() {
             }
             if($.errorJoinShop.indexOf('活动太火爆，请稍后再试') > -1){
                 console.log('第3次 重新开卡')
+                await $.wait(500)
+                await joinShop()
+            }
+			if($.errorJoinShop.indexOf('活动太火爆，请稍后再试') > -1){
+                console.log('第4次 重新开卡')
+                await $.wait(500)
+                await joinShop()
+            }
+			if($.errorJoinShop.indexOf('活动太火爆，请稍后再试') > -1){
+                console.log('第5次 重新开卡')
                 await $.wait(500)
                 await joinShop()
             }

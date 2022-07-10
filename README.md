@@ -6,7 +6,7 @@
 
 拉库
 ```
-ql repo https://github.com/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "activity|backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
+ql repo https://github.com/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
 ```
 
 
@@ -35,4 +35,22 @@ docker run -dit \
   --restart unless-stopped \
   whyour/qinglong:latest
   ```
+  
+  ## 加密脚本清单
+
+<details>
+<summary>加密脚本清单，已审查， 不放心可禁用</summary>
+<pre><code>
+jd_zjd.js (赚京豆，全加密）
+jddj_fruit.js（到家果园，全加密）
+jd_fans.js （粉丝互动，全加密）
+jd_half_redrain.js (半点京豆雨，全加密）
+jd_jxmc.js （京喜牧场，算法加密）
+jd_cfd.js （京喜财富岛，算法加密）
+jd_cfd_loop.js (京喜财富岛捡贝壳，算法加密）
+jd_speed_sign.js （极速版签到，算法加密）
+jd_speed_signred.js  （极速版红包，算法加密）
+开卡系列全部部分或全部加密 
+</code></pre>
+</details>
 
