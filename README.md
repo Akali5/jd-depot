@@ -1,6 +1,9 @@
 # jd-depot
-自用脚本
-内部互助
+# 自用脚本，内部互助
+
+
+
+
 拉库
 ```
 ql repo https://github.com/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "activity|backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
