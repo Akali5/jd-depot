@@ -9,6 +9,12 @@
 ql repo https://github.com/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
 ```
 
+国内🐓
+```
+ql repo https://hub.xn--gzu630h.xn--kpry57d/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
+
+```
+
 
 青龙命令2.10.13版本
 ```
