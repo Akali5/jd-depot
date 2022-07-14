@@ -29,7 +29,7 @@ if ($.isNode()) {
         return;
     }
     
-    // authorCodeList = await getAuthorCodeList('https://gitee.com/===31===/code/raw/master/lzdz1_league.json')
+    // authorCodeList = await getAuthorCodeList('https://gitee.com/11111131/code/raw/master/lzdz1_league.json')
     // if($.getAuthorCodeListerr === false){
     //     authorCodeList = [
     //         '6579dde1e3b34091baecb2cd4381786f',
