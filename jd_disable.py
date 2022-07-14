@@ -28,7 +28,7 @@ if not ipport:
     ipport = "localhost:5700"
 else:
     ipport = ipport.lstrip("http://").rstrip("/")
-sub_str = os.getenv("RES_SUB", "===4===_KR")
+sub_str = os.getenv("RES_SUB", "===4===_jd-depot")
 sub_list = sub_str.split("&")
 res_only = os.getenv("RES_ONLY", True)
 headers = {
