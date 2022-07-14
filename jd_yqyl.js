@@ -7,14 +7,14 @@
 =================================Quantumultx=========================
 [task_local]
 #邀请有礼
-45 0 * * * https://raw.githubusercontent.com/444444/JDJB/main/jd_yqyl.js, tag=邀请有礼, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
+45 0 * * * https://raw.githubusercontent.com/===4===/JDJB/main/jd_yqyl.js, tag=邀请有礼, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 =================================Loon===================================
 [Script]
-cron "45 0 * * *" script-path=https://raw.githubusercontent.com/444444/JDJB/main/jd_yqyl.js,tag=邀请有礼
+cron "45 0 * * *" script-path=https://raw.githubusercontent.com/===4===/JDJB/main/jd_yqyl.js,tag=邀请有礼
 ===================================Surge================================
-邀请有礼 = type=cron,cronexp="45 0 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/444444/JDJB/main/jd_yqyl.js
+邀请有礼 = type=cron,cronexp="45 0 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/===4===/JDJB/main/jd_yqyl.js
 ====================================小火箭=============================
-邀请有礼 = type=cron,script-path=https://raw.githubusercontent.com/444444/JDJB/main/jd_yqyl.js, cronexpr="45 0 * * *", timeout=3600, enable=true
+邀请有礼 = type=cron,script-path=https://raw.githubusercontent.com/===4===/JDJB/main/jd_yqyl.js, cronexpr="45 0 * * *", timeout=3600, enable=true
  */
 const $ = new Env('邀请有礼');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -52,7 +52,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
     let authorCode = "";
     if(helpAuthorFlag){
         try{
-            helpAuthorInfo = await getAuthorCodeList('https://gitee.com/444444521/scripts/raw/master/11111127');
+            helpAuthorInfo = await getAuthorCodeList('https://gitee.com/===4===521/scripts/raw/master/===27===');
         }catch (e) {}
         if(!helpAuthorInfo){
             helpAuthorInfo = [];

@@ -1,5 +1,5 @@
 /*
- * 2022-05-27 修复优化版  By https://github.com/11111129/jdpro/
+ * 2022-05-27 修复优化版  By https://github.com/===29===/jdpro/
  * 如需运行请自行添加环境变量：JD_TRY，值填 true 即可运行
  * X1a0He留
  * 脚本是否耗时只看args_xh.maxLength的大小
