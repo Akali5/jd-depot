@@ -1,7 +1,7 @@
 /*
-Love Summer  FUN肆去浪
+一见倾芯 天长地久
 */
-const $ = new Env("Love Summer  FUN肆去浪");
+const $ = new Env("一见倾芯 天长地久");
 const jdCookieNode = $.isNode() ? require("./jdCookie.js") : "";
 const notify = $.isNode() ? require("./sendNotify") : "";
 let cookiesArr = [], cookie = "", message = "";
@@ -55,16 +55,16 @@ if ($.isNode()) {
       $.ADID = getUUID("xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", 1);
       $.UUID = getUUID("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
       authorCodeList = [
-        '6fb708cd371c4a6e99abe81d5bb194e6',
-        '2f9cf7dc109b425399aec46dd4cfe6d7',
-        // 'f091001db13b4748bcdad346c29cd564',
+        '161743cf4e3645ba86671e3f4504d4fb',
+        'f1c4f0d03a8e480aaaffe0093d3590bc',
+        '9b785de5825649cda88f574d3ac57ec5',
       ];
       // $.authorCode = authorCodeList[random(0, authorCodeList.length)];
       $.authorCode = ownCode ? ownCode : authorCodeList[random(0, authorCodeList.length)]
       $.authorNum = `${random(1000000, 9999999)}`;
       $.randomCode = random(1000000, 9999999);
-      $.activityId = "dzlhkkd82f12a97f5c446ba1adc2a1";
-      $.activityShopId = "1000004065";
+      $.activityId = "dzlhkk0c046a602d347bea3e27b82f5";
+      $.activityShopId = "1000072521";
       $.activityUrl = `https://lzdz1-isv.isvjcloud.com/dingzhi/customized/common/activity/${$.authorNum}?activityId=${$.activityId}&shareUuid=${encodeURIComponent($.authorCode)}&adsource=SD&shareuserid4minipg=${encodeURIComponent($.secretPin)}&shopid=undefined&lng=00.000000&lat=00.000000&sid=&un_area=`;
       await member();
       // await $.wait(1000);
@@ -101,13 +101,12 @@ async function member() {
     await getMyPing();
     if ($.secretPin) {
       console.log("去助力 -> " + $.authorCode);
-      // console.log(cookie)
-      await task("common/accessLogWithAD", `venderId=${$.activityShopId}&code=99&pin=${encodeURIComponent($.secretPin)}&activityId=${$.activityId}&pageUrl=${$.activityUrl}&subType=app&adSource=`, 1);
+      await taskaccessLog("common/accessLogWithAD", `venderId=${$.activityShopId}&code=99&pin=${encodeURIComponent($.secretPin)}&activityId=${$.activityId}&pageUrl=${$.activityUrl}&subType=app&adSource=FLP`, 1);
       // await task("wxActionCommon/getUserInfo", `pin=${encodeURIComponent($.secretPin)}`, 1);
       if ($.index === 1) {
-        await task("linkgame/activity/content", `activityId=${$.activityId}&pin=${encodeURIComponent($.secretPin)}&pinImg=&nick=${encodeURIComponent($.pin)}&cjyxPin=&cjhyPin=&shareUuid=${encodeURIComponent($.authorCode)}&adSource=`, 0, 1);
+        await task("linkgame/activity/content", `activityId=${$.activityId}&pin=${encodeURIComponent($.secretPin)}&pinImg=&nick=${encodeURIComponent($.pin)}&cjyxPin=&cjhyPin=&shareUuid=${encodeURIComponent($.authorCode)}`, 0, 1);
       } else {
-        await task("linkgame/activity/content", `activityId=${$.activityId}&pin=${encodeURIComponent($.secretPin)}&pinImg=&nick=${encodeURIComponent($.pin)}&cjyxPin=&cjhyPin=&shareUuid=${encodeURIComponent($.authorCode)}&adSource=`);
+        await task("linkgame/activity/content", `activityId=${$.activityId}&pin=${encodeURIComponent($.secretPin)}&pinImg=&nick=${encodeURIComponent($.pin)}&cjyxPin=&cjhyPin=&shareUuid=${encodeURIComponent($.authorCode)}`);
       }
       $.log("关注店铺");
       await task("opencard/follow/shop", `activityId=${$.activityId}&pin=${encodeURIComponent($.secretPin)}`);
@@ -118,13 +117,13 @@ async function member() {
         for (const vo of $.openCardList) {
           // console.log(vo)
           $.log(`>>> 去加入${vo.name} ${vo.venderId}`);
-          // await task("crm/pageVisit/insertCrmPageVisit", `venderId=1000000576&elementId=入会跳转&pageId=dzlhkk068d4d0ab8a6609723002f50&pin=${encodeURIComponent($.secretPin)}`, 1);
-          // await $.wait(500);
-          // await getFirstLZCK();
-          // await getToken();
+          await task("crm/pageVisit/insertCrmPageVisit", `venderId=1000000576&elementId=入会跳转&pageId=dzlhkk068d4d0ab8a6609723002f50&pin=${encodeURIComponent($.secretPin)}`, 1);
+          await $.wait(500);
+          await getFirstLZCK();
+          await getToken();
           if (vo.status == 0) {
             await getShopOpenCardInfo({ venderId: `${vo.venderId}`, channel: "401" }, vo.venderId);
-            // console.log($.openCardActivityId)
+            console.log($.openCardActivityId)
             await bindWithVender({ venderId: `${vo.venderId}`, bindByVerifyCodeFlag: 1, registerExtend: {}, writeChildFlag: 0, activityId: 2329491, channel: 401 }, vo.venderId);
             await $.wait(500);
           } else {
@@ -437,7 +436,6 @@ function getFirstLZCK() {
                 }
               }
             }
-            $.cookie = cookie
           }
         } catch (error) {
           console.log(error);
