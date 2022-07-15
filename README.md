@@ -75,7 +75,7 @@ jx_one2shopping.js（京喜一元兑好礼）
 jx_sign_xd.js（京喜签到-喜豆）
 jd_card.js （店铺开卡）
 jd_carplay.js（头文字j）
-
+jd_mf_new.js(京东模仿-全加蜜)
 
 
 开卡系列全部部分或全部加密 
