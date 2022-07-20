@@ -42,18 +42,27 @@ docker run -dit \
   whyour/qinglong:latest
   ```
   
+其他脚本
+```
+58.js(58同城)
+jd_txstockex.js(腾讯自选股)
+telecom.py(电信脚本)
+```
+  
+  
+  
   ## 加密脚本清单
 
 <details>
 <summary>加密脚本清单，已审查， 不放心可禁用</summary>
 <pre><code>
-jd_fans.js （粉丝互动，全加密）
-jd_jxmc.js （京喜牧场，算法加密）
-jd_cfd.js （京喜财富岛，算法加密）
-jd_cfd_loop.js (京喜财富岛捡贝壳，算法加密）
-jd_speed_sign.js （极速版签到，算法加密）
-jd_speed_signred.js  （极速版红包，算法加密）
-jd_19E_help.js （热爱奇旅互助版-部分加密）
+jd_fans.js (粉丝互动，全加密)
+jd_jxmc.js (京喜牧场，算法加密)
+jd_cfd.js (京喜财富岛，算法加密)
+jd_cfd_loop.js (京喜财富岛捡贝壳，算法加密)
+jd_speed_sign.js (极速版签到，算法加密)
+jd_speed_signred.js  (极速版红包，算法加密)
+jd_19E_help.js (热爱奇旅互助版-部分加密)
 jd_game.js (LZ店铺通用游戏任务-加密)
 jd_speed_redpocke.js (京东极速版领红包-加密)
 jd_wxSignRed.js(微信签到红包-加密)
@@ -71,12 +80,12 @@ jd_wxCartKoi.js (购物车锦鲤通用活动)
 jd_wxCollectCard.js(集卡抽奖通用活动)
 jd_wxCollectionActivity.js(取关商品)
 jd_wxSecond.js (读秒拼手速)
-jx_one2shopping.js（京喜一元兑好礼）
-jx_sign_xd.js（京喜签到-喜豆）
-jd_card.js （店铺开卡）
-jd_carplay.js（头文字j）
-jd_mf_new.js(京东模仿-全加蜜)
-
+jx_one2shopping.js(京喜一元兑好礼)
+jx_sign_xd.js(京喜签到-喜豆)
+jd_card.js (店铺开卡)
+jd_carplay.js(头文字j)
+jd_mf_new.js(京东魔方-全加密)
+jd_txstockex.js(腾讯自选股-全加密)
 
 开卡系列全部部分或全部加密 
 </code></pre>
