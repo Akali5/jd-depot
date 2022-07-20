@@ -45,7 +45,7 @@ docker run -dit \
 其他脚本
 ```
 58.js(58同城)
-jd_txstockex.js(腾讯自选股)
+jd_txstockex.js(腾讯自选股-全加密)
 telecom.py(电信脚本)
 ```
   
