@@ -6,12 +6,12 @@
 
 拉库
 ```
-ql repo https://github.com/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
+ql repo https://github.com/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "activity|backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
 ```
 
 国内🐓
 ```
-ql repo https://hub.xn--gzu630h.xn--kpry57d/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
+ql repo https://hub.xn--gzu630h.xn--kpry57d/Akali5/jd-depot.git "jd_|jx_|jddj_|gua_|getJDCookie|wskey" "activity|backUp" "^jd[^_]|USER|utils|ZooFaker_Necklace|JDJRValidator_|sign_graphics_validate|jddj_cookie|function|ql|magic|JDJR|sendNotify|depend|h5"
 
 ```
 
