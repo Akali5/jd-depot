@@ -85,6 +85,7 @@ jd_card.js (店铺开卡)
 jd_carplay.js(头文字j)
 jd_mf_new.js(京东魔方-全加密)
 jd_txstockex.js(腾讯自选股-全加密)
+jd_washbeans.js(临时京豆续命-加密)
 
 开卡系列全部部分或全部加密 
 </code></pre>
