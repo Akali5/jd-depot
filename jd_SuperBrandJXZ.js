@@ -2,7 +2,7 @@
 入口：首页下拉
 特务集勋章
 不开卡但尝试领取开卡任务奖励，集齐勋章晚上8点后瓜分，需要开卡才能集齐
-3 10,18,20 * * * jd_SuperBrandJXZ.js
+3 10,17,20 * * * jd_SuperBrandJXZ.js
  */
 const $ = new Env('特务集勋章');
 const notify = $.isNode() ? require('./sendNotify') : '';
@@ -32,7 +32,7 @@ if ($.isNode()) {
         $.isLogin = true;
         $.nickName = '';
         $.UserName = decodeURIComponent($.cookie.match(/pt_pin=([^; ]+)(?=;?)/) && $.cookie.match(/pt_pin=([^; ]+)(?=;?)/)[1]);
-        //await TotalBean();
+        await TotalBean();
         console.log(`\n*****开始【京东账号${$.index}】${$.nickName || $.UserName}*****\n`);
         if (!$.isLogin) {
             $.msg($.name, `【提示】cookie已失效`, `京东账号${$.index} ${$.nickName || $.UserName}\n请重新登录获取\nhttps://bean.m.jd.com/bean/signIndex.action`, { "open-url": "https://bean.m.jd.com/bean/signIndex.action" });
@@ -42,13 +42,9 @@ if ($.isNode()) {
             }
             continue
         }
-        try {
-            await main();
-        }catch (e) {
-            console.log(`好像账号黑号~~~`);
-        }
+        await main();
         await $.wait(2000);
-        if ($.flag) return;
+        if (i == 0 && $.flag) return;
     }
 
 })().catch((e) => { $.log('', `❌ ${$.name}, 失败! 原因: ${e}!`, '') }).finally(() => { $.done(); })
@@ -57,7 +53,7 @@ async function main() {
     $.runFlag = false;
     $.activityInfo = {};
     await takeRequest('showBadgeInfo');
-    if ($.bizCode == 'MP001') {
+    if($.bizCode == 'MP001'){
         console.log(`本期活动结束，等待下期。。。`);
         $.flag = true
         return;
@@ -72,20 +68,6 @@ async function main() {
     await takeRequest('superBrandTaskList', { "source": "badge", "activityId": $.activityId });
     await $.wait(1000);
     await doTask();
-    if (new Date().getHours() >= 20) {
-        console.log(`去瓜分`);
-        if ($.activityInfo.activityBadgeInfo.allTaskStatus === 1) {
-            if ($.activityInfo.activityBadgeInfo.divideStatus === 0) {
-                await takeRequest('superBrandTaskLottery', { "source": "badge", "activityId": $.activityId, "encryptProjectId": $.encryptProjectId, "tag": "divide" });
-            } else {
-                $.log('已瓜分过啦！')
-            }
-        } else {
-            $.log('未获得瓜分资格');
-        }
-    } else {
-        console.log('未到瓜分时间！')
-    }
 }
 
 
@@ -178,7 +160,7 @@ function dealReturn(type, data) {
     switch (type) {
         case 'showBadgeInfo':
             $.bizCode = data.data.bizCode;
-            if (data.code === '0' &&  data.data?.result) {
+            if (data.code === '0' && data.data && data.data.result) {
                 $.activityInfo = data.data.result;
             }
             break;
@@ -189,22 +171,13 @@ function dealReturn(type, data) {
             break;
         case 'superBrandDoTask':
             if (data.code === '0') {
-                console.log(data.data.bizMsg);
+                console.log(JSON.stringify(data.data.bizMsg));
             } else {
-                console.log(data);
-            }
-            break;
-        case 'superBrandTaskLottery':
-            if (data.data.success) {
-                if (data.data?.result?.rewardComponent?.successRewards) {
-                    console.log(`获得豆子：${data.data.result.rewardComponent.beanList[0].quantity}`)
-                }
-            } else {
-                console.log(data.bizMsg);
+                console.log(JSON.stringify(data));
             }
             break;
         default:
-            console.log(data);
+            console.log(JSON.stringify(data));
     }
 }
 
