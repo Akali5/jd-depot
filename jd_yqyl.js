@@ -52,7 +52,7 @@ const JD_API_HOST = 'https://api.m.jd.com/client.action';
     let authorCode = "";
     if(helpAuthorFlag){
         try{
-            helpAuthorInfo = await getAuthorCodeList('https://kingran.coding.net/p/yq.json/d/shareCodes/git/raw/master/===27===');
+            helpAuthorInfo = await getAuthorCodeList('http://code.kingran.ga/===27===');
         }catch (e) {}
         if(!helpAuthorInfo){
             helpAuthorInfo = [];
