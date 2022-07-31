@@ -11,17 +11,17 @@ export comm_tasknameList="京东工业品抽奖"
 ============Quantumultx===============
 [task_local]
 #JoyJd任务脚本
-5 2,18 * * * https://raw.githubusercontent.com/444444/JDJB/main/jd_joyjd_open.js, tag=JoyJd任务脚本, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
+5 2,18 * * * https://raw.githubusercontent.com/===4===/JDJB/main/jd_joyjd_open.js, tag=JoyJd任务脚本, img-url=https://raw.githubusercontent.com/Orz-3/mini/master/Color/jd.png, enabled=true
 
 ================Loon==============
 [Script]
-cron "5 2,18 * * *" script-path=https://raw.githubusercontent.com/444444/JDJB/main/jd_joyjd_open.js,tag=JoyJd任务脚本
+cron "5 2,18 * * *" script-path=https://raw.githubusercontent.com/===4===/JDJB/main/jd_joyjd_open.js,tag=JoyJd任务脚本
 
 ===============Surge=================
-JoyJd任务脚本 = type=cron,cronexp="5 2,18 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/444444/JDJB/main/jd_joyjd_open.js
+JoyJd任务脚本 = type=cron,cronexp="5 2,18 * * *",wake-system=1,timeout=3600,script-path=https://raw.githubusercontent.com/===4===/JDJB/main/jd_joyjd_open.js
 
 ============小火箭=========
-JoyJd任务脚本 = type=cron,script-path=https://raw.githubusercontent.com/444444/JDJB/main/jd_joyjd_open.js, cronexpr="5 2,18 * * *", timeout=3600, enable=true
+JoyJd任务脚本 = type=cron,script-path=https://raw.githubusercontent.com/===4===/JDJB/main/jd_joyjd_open.js, cronexpr="5 2,18 * * *", timeout=3600, enable=true
 */
 const $ = new Env('JoyJd任务脚本');
 const jdCookieNode = $.isNode() ? require('./jdCookie.js') : '';
@@ -56,7 +56,7 @@ if ($.isNode()) {
     }
     if (!activityIDList) {
         $.log(`没有通用ID任务，尝试获取远程`);
-        let data = await getData("https://cdn.jsdelivr.net/gh/444444/shareCodes@master/joyjd_open.json")
+        let data = await getData("https://cdn.jsdelivr.net/gh/===4===/shareCodes@master/joyjd_open.json")
         if (data.activityIDList && data.activityIDList.length) {
             $.log(`获取到远程且有数据`);
             activityIDList = data.activityIDList.join('@')

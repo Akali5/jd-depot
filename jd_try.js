@@ -1,7 +1,7 @@
 /*
- * 2022-05-27 修复优化版  By https://github.com/11111129/jdpro/
+ * 2022-05-27 修复优化版  By https://github.com/===29===/jdpro/
  * 如需运行请自行添加环境变量：JD_TRY，值填 true 即可运行
- * X1a0He by 11111129/jdpro/
+ * X1a0He by ===29===/jdpro/
  * 脚本是否耗时只看args_xh.maxLength的大小
  * 上一作者说了每天最多300个商店，总上限为500个，jd_unsubscribe.js我已更新为批量取关版
  * 请提前取关至少250个商店确保京东试用脚本正常运行
