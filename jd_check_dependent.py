@@ -8,7 +8,7 @@ Date: 2022/8/12 20:37
 TG: https://t.me/HarbourToulu
 TgChat: https://t.me/HarbourSailing
 cron: 7 7 7 7 7
-new Env('Akali5库本地Sign依赖检测');
+new Env('Faker库本地Sign依赖检测');
 Description:1.Faker库jd_sign本地算法依赖一键检测安装脚本;
             2.自动识别机器系统/架构,拉取最新依赖文件;
             3.本地sign算法已编译支持Windows(amd64)、Linux(amd64/arm64/arm)、Macos(x86_64)系统/架构;
@@ -115,7 +115,7 @@ def check_ld_libc():
                 print("arm64-libc依赖安装失败,网络连接失败，请按依赖教程自行下载依赖文件")
 
 def download(systemFile):
-    raw_url = f"http://6bohe.xyz/https://raw.githubusercontent.com/Akali5/jd-depot/main/utils/{systemFile}"
+    raw_url = f"https://raw.githubusercontent.com/Akali5/jd-depot/main/utils/{systemFile}"
     try:
         fileList = os.listdir()
         if systemFile in fileList:
