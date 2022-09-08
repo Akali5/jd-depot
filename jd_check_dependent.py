@@ -1,226 +1,606 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
-"""
-File: jd_check_dependent.py(Harbour库依赖一键检测安装(不可禁用)每小时检测一次)
-Author: HarbourJ
-Date: 2022/8/12 20:37
-TG: https://t.me/HarbourToulu
-TgChat: https://t.me/HarbourSailing
-cron: 7 7 7 7 7
-new Env('Akali5库本地Sign依赖检测');
-Description:1.Faker库jd_sign本地算法依赖一键检测安装脚本;
-            2.自动识别机器系统/架构,拉取最新依赖文件;
-            3.本地sign算法已编译支持Windows(amd64)、Linux(amd64/arm64/arm)、Macos(x86_64)系统/架构;
-            4.默认支持python3版本为3.8-3.9,过高或过低可能会报错;
-            5.若本一键配置脚本无法安装所需jd_sign依赖文件,请前往https://github.com/HarbourJ/HarbourToulu/releases自行下载系统对应的jd_sign依赖压缩文件,解压并放置/scripts/HarbourJ_HarbourToulu_main文件夹内即可。
-"""
-import sys
-
-import requests, os, platform
-from functools import partial
-print = partial(print, flush=True)
+# -*- coding:utf-8 -*-
+# 作者仓库:https://jihulab.com/spiritlhl/qinglong_auto_tools.git
+# 觉得不错麻烦点个star谢谢
+# 频道：https://t.me/qinglong_auto_tools
 
 
-def updateDependent():
-    """
-    更新依赖的主函数
-    """
-    system = platform.system().lower()
-    if system == "windows":
-        print("识别本机设备为Windows amd64")
-        rtu = repoTreeUpdate()
-        if rtu == 9:
-            sys.exit()
-        if rtu:
-            removeOldSign()
-            if download("jd_sign-win-amd64.zip"):
-                import zipfile
-                f = zipfile.ZipFile("jd_sign-win-amd64.zip", 'r')
-                for file in f.namelist():
-                    f.extract(file, os.getcwd())
-                f.close()
-                return True
-    elif system == "darwin":
-        print("识别本机设备为MacOS x86_64")
-        rtu = repoTreeUpdate()
-        if rtu == 9:
-            sys.exit()
-        if rtu:
-            removeOldSign()
-            if download("jd_sign-darwin-x86_64.tar.gz"):
-                os.system('tar xvf jd_sign-darwin-x86_64.tar.gz')
-                os.system('rm -rf jd_sign-darwin-x86_64.tar.gz')
-                return True
+'''
+cron: 1
+new Env('单容器 二叉树修复脚本依赖文件');
+'''
+
+import os, requests
+import os.path
+import time
+
+# from os import popen
+
+# 版本号 2.10.9 ，其他环境自测
+# 只修复依赖文件（jdCookie.js那种）！！不修复环境依赖（pip install aiohttp）！！
+# 默认不做任何操作只查询依赖脚本存在与否，有需求请在配置文件中配置对应变量进行操作，更新不会增加缺失文件
+# 如果你有发现更多的脚本依赖文件没有新增，欢迎提交issues到https://jihulab.com/spiritlhl/dependence_scripts
+# 增加缺失依赖文件(推荐)
+# export ec_fix_dep="true"
+# 更新老旧依赖文件(慎填，默认的依赖我使用的魔改版本，非必要别选)
+# export ec_ref_dep="true"
+
+# 2021.11.27 支持新版本仓库拉取的脚本目录结构，针对各个仓库进行依赖检索
+
+txtx = "青龙配置文件中的config中填写下列变量启用对应功能\n\n增加缺失依赖文件(推荐)\n填写export ec_fix_dep=\"true\"\n更新老旧依赖文件(日常使用别填，默认的依赖我使用的魔改版本，非必要别选)\n如果选择使用请使用对应code文件等相关文件：https://jihulab.com/spiritlhl/dependence_config \n填写export ec_ref_dep=\"true\"\n"
+print(txtx)
+
+try:
+    if os.environ["ec_fix_dep"] == "true":
+        print("已配置依赖文件缺失修复\n")
+        fix = 1
     else:
-        print("识别本机设备为Linux")
-        rtu = repoTreeUpdate()
-        if rtu == 9:
-            sys.exit()
-        if rtu:
-            removeOldSign()
-            framework = os.uname().machine
-            if framework == "x86_64":
-                if download("jd_sign-linux-amd64.tar.gz"):
-                    os.system('tar xvf jd_sign-linux-amd64.tar.gz')
-                    os.system('rm -rf jd_sign-linux-amd64.tar.gz')
-                    return True
-            elif framework == "aarch64" or framework == "arm64":
-                check_ld_libc()
-                if download("jd_sign-linux-arm64.tar.gz"):
-                    os.system('tar xvf jd_sign-linux-arm64.tar.gz')
-                    os.system('rm -rf jd_sign-linux-arm64.tar.gz')
-                    return True
-            elif framework == "armv7l":
-                check_ld_libc()
-                if download("jd_sign-linux-arm.tar.gz"):
-                    os.system('tar xvf jd_sign-linux-arm.tar.gz')
-                    os.system('rm -rf jd_sign-linux-arm.tar.gz')
-                    return True
-            else:
-                if download("jd_sign-linux-amd64.tar.gz"):
-                    os.system('tar xvf jd_sign-linux-amd64.tar.gz')
-                    os.system('rm -rf jd_sign-linux-amd64.tar.gz')
-                    return True
+        fix = 0
+except:
+    fix = 0
+    print("#默认不修复缺失依赖文件，有需求")
+    print("#请在配置文件中配置\nexport ec_fix_dep=\"true\" \n#开启脚本依赖文件缺失修复\n")
 
-def check_ld_libc():
-    """
-    检测是否存在ld-linux-aarch64.so.1、libc.musl-aarch64.so.1动态依赖文件
-    """
-    if "ld-linux-aarch64.so.1" in (os.listdir('/lib')):
-        print("已存在arm64-ld依赖")
-        pass
+try:
+    if os.environ["ec_ref_dep"] == "true":
+        print("已配置依赖文件老旧更新\n")
+        ref = 1
     else:
-        if download("ld-linux-aarch64.tar.gz"):
-            os.system('tar xvf ld-linux-aarch64.tar.gz')
-            os.system('cp ld-linux-aarch64.so.1 /lib')
-            if "ld-linux-aarch64.so.1" in (os.listdir('/lib')):
-                print("arm64-ld依赖安装完成~")
-                os.system('rm -rf ld-linux-aarch64.tar.gz')
-                os.system('rm -rf ld-linux-aarch64.so.1')
-            else:
-                print("arm64-ld依赖安装失败,网络连接失败，请按依赖教程自行下载依赖文件")
-    if "libc.musl-aarch64.so.1" in (os.listdir('/lib')):
-        print("已存在arm64-libc依赖")
-        pass
-    else:
-        if download("libc.musl-aarch64.tar.gz"):
-            os.system('tar xvf libc.musl-aarch64.tar.gz')
-            os.system('cp libc.musl-aarch64.so.1 /lib')
-            if "libc.musl-aarch64.so.1" in (os.listdir('/lib')):
-                print("arm64-libc依赖安装完成~")
-                os.system('rm -rf libc.musl-aarch64.tar.gz')
-                os.system('rm -rf libc.musl-aarch64.so.1')
-            else:
-                print("arm64-libc依赖安装失败,网络连接失败，请按依赖教程自行下载依赖文件")
+        ref = 0
+except:
+    ref = 0
+    print("#默认不更新老旧依赖文件，有需求")
+    print("#请在配置文件中配置\nexport ec_re_dep=\"true\" #开启脚本依赖文件更新\n")
 
-def download(systemFile):
-    raw_url = f"https://raw.githubusercontent.com/Akali5/jd-depot/main/utils/{systemFile}"
+
+def traversalDir_FirstDir(path):
+    list = []
+    if (os.path.exists(path)):
+        files = os.listdir(path)
+        for file in files:
+            m = os.path.join(path, file)
+            if (os.path.isdir(m)):
+                h = os.path.split(m)
+                list.append(h[1])
+        print("文件夹名字有：")
+        print(list)
+        return list
+
+
+def check_dependence(file_path):
     try:
-        fileList = os.listdir()
-        if systemFile in fileList:
-            os.remove(systemFile)
+        res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/contents.json").json()
     except:
-        print(f"删除{fileList}失败")
-    try:
+        print("网络波动，稍后尝试")
+        time.sleep(5)
         try:
-            import wget
-        except ImportError as e:
-            print(e)
-            if "No module" in str(e):
-                os.system("pip install wget")
-            import wget
-        wget.download(raw_url)
-        print(f"{systemFile}下载成功")
-        return True
-    except Exception as e:
-        print(e)
-        print(f"{systemFile}下载失败")
-        return False
+            res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/contents.json").json()
+        except:
+            print("网络问题无法获取仓库文件列表，终止检索")
+            return
 
-def removeOldSign():
-    fileList = os.listdir()
-    if "jd_sign.so" in fileList:
-        try:
-            os.remove("jd_sign.so")
-            print("成功删除历史jd_sign依赖文件")
-        except:
-            pass
-    elif "jd_sign_x86.so" in fileList:
-        try:
-            os.remove("jd_sign_x86.so")
-            print("成功删除历史jd_sign依赖文件")
-        except:
-            pass
-    elif "jd_sign_arm64.so" in fileList:
-        try:
-            os.remove("jd_sign_arm64.so")
-            print("成功删除历史jd_sign依赖文件")
-        except:
-            pass
+    dependence_scripts_name = []
+    for i in res:
+        dependence_scripts_name.append(i["name"])
 
-def repoTreeUpdate():
-    """
-    判断utils内的主要文件是否更新(sha值是否变化)
-    """
-    GitAPI = 'https://api.github.com/repos/Akali5/jd-depot/git/trees/main'
-    try:
-        session = requests.session()
-        headers = {"Content-Type": "application/json"}
-        res = session.get(url=GitAPI, headers=headers, timeout=20)
-        if res.status_code == 200:
-            for x in res.json()["tree"]:
-                if "utils" == x["path"]:
-                    new_sha = x["sha"]
-                    print(new_sha)
-            # 获取上一次检查所记录的sha值
+    if "db" in os.listdir("../"):
+        dir_list = os.listdir(file_path)
+    else:
+        dir_list = os.listdir("." + file_path)
+
+    # 查询
+    for i in dependence_scripts_name:
+        if i not in dir_list and i != "utils" and i != "function":
+            print("缺失文件 {}{}".format(file_path, i))
+            # 修补
             try:
-                with open('repoUpdate.log', "r") as f0:
-                    last_sha = f0.read()
-            except Exception as e:
-                # print(e)
-                # 以log格式写入文件
-                with open("repoUpdate.log", "w") as f1:
-                    f1.write('')
-            with open("repoUpdate.log", "w") as f2:
-                f2.write(new_sha)
-            if new_sha != last_sha:
-                print("检测到依赖版本有更新,自动更新...")
-                print("*" * 30)
-                return True
-            else:
-                print("检测到依赖版本无更新")
-                try:
-                    from jd_sign import remote_redis
-                    result = remote_redis(export_name="Test01", db_index=15)
-                    print(result)
-                    print("依赖正常,退出程序")
-                    return 9
-                except:
-                    print("依赖不正常,自动修复中...")
-                    print("*" * 30)
-                    return True
-        else:
-            print(f'请求失败：{GitAPI}')
-            if "message" in res.json():
-                print(f'错误信息：{res.json()["message"]}')
-            return False
-    except:
-        print(f'请求URL失败：{GitAPI}')
-        return False
+                if fix == 1:
+                    print("增加文件 {}{}".format(file_path, i))
+                    r = requests.get(
+                        "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/" + i).text
+                    if "db" in os.listdir("../"):
+                        with open(file_path + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+                    else:
+                        with open("." + file_path + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+            except:
+                temp = 1
 
-def main():
-    updateDependent()
     try:
-        from jd_sign import remote_redis
-        result = remote_redis(export_name="Test01", db_index=15)
-        print(result)
-        if result:
-            print("依赖安装/更新完成")
+        if temp == 1:
+            print("未配置ec_fix_dep，默认不修复增加缺失的依赖文件")
     except:
-        print("依赖安装/更新失败,网络连接失败，请按依赖教程自行下载依赖文件")
+        pass
+
+    # 更新
+    try:
+        if ref == 1:
+            for i in dependence_scripts_name:
+                if i != "utils" and i != "function":
+                    if "db" in os.listdir("../"):
+                        with open(i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("无需修改 {}".format(i))
+                            else:
+                                print("更新文件 {}".format(i))
+                                with open(file_path + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+                    else:
+                        with open(i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("无需修改 {}".format(i))
+                            else:
+                                print("更新文件 {}".format(i))
+                                with open("." + file_path + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+
+    except:
+        print("未配置ec_ref_dep，默认不更新依赖文件")
+
+    #########################################################################################################
+
+    # utils
+
+    try:
+        res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils.json").json()
+    except:
+        print("网络波动，稍后尝试")
+        time.sleep(5)
+        try:
+            res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils.json").json()
+        except:
+            print("网络问题无法获取仓库文件列表，终止检索")
+            return
+
+    dependence_scripts_utils = []
+    for i in res:
+        dependence_scripts_utils.append(i["name"])
+
+    try:
+        if "db" in os.listdir("../"):
+            utils_list = os.listdir(file_path + "utils")
+        else:
+            utils_list = os.listdir("." + file_path + "utils")
+    except:
+        if "db" in os.listdir("../"):
+            os.makedirs(file_path + "utils")
+            utils_list = os.listdir(file_path + "utils")
+        else:
+            os.makedirs("." + file_path + "utils")
+            utils_list = os.listdir("." + file_path + "utils")
+
+    # 查询
+    for i in dependence_scripts_utils:
+        if i not in utils_list and i != "utils" and i != "function":
+            print("缺失文件 {}utils/{}".format(file_path, i))
+            # 修补
+            try:
+                if fix == 1:
+                    print("增加文件 {}utils/{}".format(file_path, i))
+                    r = requests.get(
+                        "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils/" + i).text
+                    if "db" in os.listdir("../"):
+                        with open(file_path + "utils/" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+                    else:
+                        with open("." + file_path + "utils/" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+            except:
+                temp = 1
+
+    try:
+        if temp == 1:
+            print("未配置ec_fix_dep，默认不修复增加缺失的依赖文件")
+    except:
+        pass
+
+    # 更新
+    try:
+        if ref == 1:
+            for i in dependence_scripts_utils:
+                if i != "utils" and i != "function":
+                    if "db" in os.listdir("../"):
+                        with open(file_path + "utils/" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("已存在文件 {}utils/{}".format(file_path, i))
+                            else:
+                                print("更新文件 {}utils/{}".format(file_path, i))
+                                with open(file_path + "utils/" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+                    else:
+                        with open("." + file_path + "utils/" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("已存在文件 {}utils/{}".format(file_path, i))
+                            else:
+                                print("更新文件 {}utils/{}".format(file_path, i))
+                                with open("." + file_path + "utils/" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+    except:
+        print("未配置ec_ref_dep，默认不更新依赖文件")
+
+    ####################################################################################################
+
+    # function
+
+    try:
+        res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function.json").json()
+    except:
+        print("网络波动，稍后尝试")
+        time.sleep(5)
+        try:
+            res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function.json").json()
+        except:
+            print("网络问题无法获取仓库文件列表，终止检索")
+            return
+
+    dependence_scripts_function = []
+    for i in res:
+        dependence_scripts_function.append(i["name"])
+
+    try:
+        if "db" in os.listdir("../"):
+            function_list = os.listdir(file_path + "function")
+        else:
+            function_list = os.listdir("." + file_path + "function")
+    except:
+        if "db" in os.listdir("../"):
+            os.makedirs(file_path + "function")
+            function_list = os.listdir(file_path + "function")
+        else:
+            os.makedirs("." + file_path + "function")
+            function_list = os.listdir("." + file_path + "function")
+
+    # 查询
+    for i in dependence_scripts_function:
+        if i not in function_list and i != "utils" and i != "function":
+            print("缺失文件 {}function/{}".format(file_path, i))
+            # 修补
+            try:
+                if fix == 1:
+                    print("增加文件 {}function/{}".format(file_path, i))
+                    r = requests.get(
+                        "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function/" + i).text
+                    if "db" in os.listdir("../"):
+                        with open(file_path + "function/" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+                    else:
+                        with open("." + file_path + "function/" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+            except:
+                temp = 1
+
+    try:
+        if temp == 1:
+            print("未配置ec_fix_dep，默认不修复增加缺失的依赖文件")
+    except:
+        pass
+
+    # 更新
+    try:
+        if ref == 1:
+            for i in dependence_scripts_function:
+                if i != "utils" and i != "function":
+                    if "db" in os.listdir("../"):
+                        with open(file_path + "function/" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("已存在文件 {}function/{}".format(file_path, i))
+                            else:
+                                print("更新文件 {}function/{}".format(file_path, i))
+                                with open(file_path + "function/" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+                    else:
+                        with open("." + file_path + "function/" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("已存在文件 {}function/{}".format(file_path, i))
+                            else:
+                                print("更新文件 {}function/{}".format(file_path, i))
+                                with open('.' + file_path + "function/" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+
+    except:
+        print("未配置ec_ref_dep，默认不更新依赖文件")
+
+
+def check_root():
+    try:
+        res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/contents.json").json()
+    except:
+        print("网络波动，稍后尝试")
+        time.sleep(5)
+        try:
+            res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/contents.json").json()
+        except:
+            print("网络问题无法获取仓库文件列表，终止检索")
+            return
+
+    dependence_scripts_name = []
+    for i in res:
+        dependence_scripts_name.append(i["name"])
+
+    if "db" in os.listdir("../"):
+        dir_list = os.listdir("./")
+    else:
+        dir_list = os.listdir("../")
+
+    # 查询
+    for i in dependence_scripts_name:
+        if i not in dir_list and i != "utils" and i != "function":
+            print("缺失文件 {}".format(i))
+            # 修补
+            try:
+                if fix == 1:
+                    print("增加文件 {}".format(i))
+                    r = requests.get(
+                        "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/" + i).text
+                    if "db" in os.listdir("../"):
+                        with open(i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+                    else:
+                        with open("../" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+            except:
+                temp = 1
+
+    try:
+        if temp == 1:
+            print("未配置ec_fix_dep，默认不修复增加缺失的依赖文件")
+    except:
+        pass
+
+    # 更新
+    try:
+        if ref == 1:
+            for i in dependence_scripts_name:
+                if i != "utils" and i != "function":
+                    if "db" in os.listdir("../"):
+                        with open(i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("无需修改 {}".format(i))
+                            else:
+                                print("更新文件 {}".format(i))
+                                with open(i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+                    else:
+                        with open("../" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("无需修改 {}".format(i))
+                            else:
+                                print("更新文件 {}".format(i))
+                                with open("../" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+
+    except:
+        print("未配置ec_ref_dep，默认不更新依赖文件")
+
+    #########################################################################################################
+
+    # utils
+
+    try:
+        res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils.json").json()
+    except:
+        print("网络波动，稍后尝试")
+        time.sleep(5)
+        try:
+            res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils.json").json()
+        except:
+            print("网络问题无法获取仓库文件列表，终止检索")
+            return
+
+    dependence_scripts_utils = []
+    for i in res:
+        dependence_scripts_utils.append(i["name"])
+
+    try:
+        if "db" in os.listdir("../"):
+            utils_list = os.listdir("./utils")
+        else:
+            utils_list = os.listdir("../utils")
+    except:
+        if "db" in os.listdir("../"):
+            os.makedirs("utils")
+            utils_list = os.listdir("./utils")
+        else:
+            os.makedirs("../utils")
+            utils_list = os.listdir("../utils")
+
+    # 查询
+    for i in dependence_scripts_utils:
+        if i not in utils_list and i != "utils" and i != "function":
+            print("缺失文件 utils/{}".format(i))
+            # 修补
+            try:
+                if fix == 1:
+                    print("增加文件 utils/{}".format(i))
+                    r = requests.get(
+                        "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils/" + i).text
+                    if "db" in os.listdir("../"):
+                        with open("./utils/" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+                    else:
+                        with open("../utils/" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+            except:
+                temp = 1
+
+    try:
+        if temp == 1:
+            print("未配置ec_fix_dep，默认不修复增加缺失的依赖文件")
+    except:
+        pass
+
+    # 更新
+    try:
+        if ref == 1:
+            for i in dependence_scripts_utils:
+                if i != "utils" and i != "function":
+                    if "db" in os.listdir("../"):
+                        with open("./utils/" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("已存在文件 utils/{}".format(i))
+                            else:
+                                print("更新文件 utils/{}".format(i))
+                                with open("./utils/" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+                    else:
+                        with open("../utils/" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/utils/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("已存在文件 utils/{}".format(i))
+                            else:
+                                print("更新文件 utils/{}".format(i))
+                                with open("../utils/" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+    except:
+        print("未配置ec_ref_dep，默认不更新依赖文件")
+
+    ####################################################################################################
+
+    # function
+
+    try:
+        res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function.json").json()
+    except:
+        print("网络波动，稍后尝试")
+        time.sleep(5)
+        try:
+            res = requests.get("https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function.json").json()
+        except:
+            print("网络问题无法获取仓库文件列表，终止检索")
+            return
+
+    dependence_scripts_function = []
+    for i in res:
+        dependence_scripts_function.append(i["name"])
+
+    try:
+        if "db" in os.listdir("../"):
+            function_list = os.listdir("./function")
+        else:
+            function_list = os.listdir("../function")
+    except:
+        if "db" in os.listdir("../"):
+            os.makedirs("function")
+            function_list = os.listdir("./function")
+        else:
+            os.makedirs("../function")
+            function_list = os.listdir("../function")
+
+    # 查询
+    for i in dependence_scripts_function:
+        if i not in function_list and i != "utils" and i != "function":
+            print("缺失文件 function/{}".format(i))
+            # 修补
+            try:
+                if fix == 1:
+                    print("增加文件 function/{}".format(i))
+                    r = requests.get(
+                        "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function/" + i).text
+                    if "db" in os.listdir("../"):
+                        with open("./function/" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+                    else:
+                        with open("../function/" + i, "w", encoding="utf-8") as fe:
+                            fe.write(r)
+            except:
+                temp = 1
+
+    try:
+        if temp == 1:
+            print("未配置ec_fix_dep，默认不修复增加缺失的依赖文件")
+    except:
+        pass
+
+    # 更新
+    try:
+        if ref == 1:
+            for i in dependence_scripts_function:
+                if i != "utils" and i != "function":
+                    if "db" in os.listdir("../"):
+                        with open("./function/" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("已存在文件 function/{}".format(i))
+                            else:
+                                print("更新文件 function/{}".format(i))
+                                with open("./function/" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+                    else:
+                        with open("../function/" + i, "r", encoding="utf-8") as f:
+                            r = requests.get(
+                                "https://jihulab.com/spiritlhl/dependence_scripts/-/raw/master/function/" + i).text
+                            d = f.read()
+                            if r == d:
+                                print("已存在文件 function/{}".format(i))
+                            else:
+                                print("更新文件 function/{}".format(i))
+                                with open("../function/" + i, "w", encoding="utf-8") as fe:
+                                    fe.write(r)
+
+    except:
+        print("未配置ec_ref_dep，默认不更新依赖文件")
+
 
 if __name__ == '__main__':
-    main()
 
+    # 针对青龙拉取仓库后单个仓库单个文件夹的情况对每个文件夹进行检测，不需要可以注释掉  开始到结束的部分
 
+    ### 开始
+    if "db" in os.listdir("../"):
+        dirs_ls = traversalDir_FirstDir("./")
+    else:
+        dirs_ls = traversalDir_FirstDir("../")
+
+    # script根目录默认存在的文件夹，放入其中的文件夹不再检索其内依赖完整性
+    or_list = ['node_modules', '__pycache__', 'utils', '.pnpm-store', 'function', 'tools', 'backUp', '.git', '.idea', '.github']
+
+    print()
+    for i in dirs_ls:
+        if i not in or_list:
+            file_path = "./" + i + "/"
+            print("检测依赖文件是否完整路径  {}".format(file_path))
+            check_dependence(file_path)
+            print()
+
+    ### 结束
+
+    # 检测根目录，不需要可以注释掉下面这行，旧版本只需要保留下面这行
+    check_root()
+
+    print("检测完毕")
+
+    if fix == 1:
+        print("修复完毕后脚本无法运行，显示缺依赖文件，大概率库里没有或者依赖文件同名但内容不一样，请另寻他法\n")
+        print("修复完毕后缺依赖环境导致的脚本无法运行，这种无法修复，请自行在依赖管理中添加\n")
+        print("前者缺文件(如 Error: Cannot find module './utils/magic')，后者缺依赖(如 Error: Cannot find module 'date-fns' )，本脚本只修复前一种")
