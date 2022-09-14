@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_shopCollectGift.py(一键领取京豆-店铺会员礼包)
+File: jd_shopCollectGift.py(店铺会员礼包)
 Author: HarbourJ
 Date: 2022/9/2 12:00
 TG: https://t.me/HarbourToulu
