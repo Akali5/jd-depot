@@ -8,7 +8,7 @@ Date: 2022/9/2 12:00
 TG: https://t.me/HarbourToulu
 TgChat: https://t.me/HarbourSailing
 cron: 1 1 1 1 1 1
-new Env('一键领取京豆-店铺会员礼包');
+new Env('店铺会员礼包');
 ActivityEntry: https://shop.m.jd.com/shop/home?shopId=1000003443
 Description: 部分账号开卡后无法自动领取开卡奖励,不自动开卡,仅领取已开卡的会员礼包
              变量export jd_shopCollectGiftId="1000003443" 变量为店铺venderId
