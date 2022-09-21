@@ -7,7 +7,7 @@ Author: HarbourJ
 Date: 2022/9/22 00:10
 TG: https://t.me/HarbourToulu
 TgChat: https://t.me/HarbourSailing
-cron: 0 0 0,10,21 22-30 9 *
+cron: 0 0 1,10,21 22-30 9 *
 new Env('09.22-09.30 金秋出游 好物随行');
 ActivityEntry: https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/activity?activityId=c567f5c0706c4cbc80a74eb19ddffc63
 """
