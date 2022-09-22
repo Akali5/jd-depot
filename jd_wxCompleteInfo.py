@@ -2,32 +2,30 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_wxCompleteInfo.py(完善信息有礼)
+File: jd_wxCompleteInfo.py(完善信息有礼-监控脚本)
 Author: HarbourJ
 Date: 2022/8/8 19:52
 TG: https://t.me/HarbourToulu
 TgChat: https://t.me/HarbourSailing
 cron: 1 1 1 1 1 1
-new Env('完善信息有礼');
+new Env('完善信息有礼-JK');
 ActivityEntry: https://cjhy-isv.isvjcloud.com/wx/completeInfoActivity/view/activity?activityId=f3325e3375a14866xxxxxxxxxxxx&venderId=1000086
                变量 export jd_wxCompleteInfoId="f3325e3375a14866xxxxxxxxxxxx&1000086192"(活动id&venderId)
 """
 
-import time
-import requests
-import sys
-import re
-import os
+import time, requests, sys, re, os, json, random
 from datetime import datetime
-import json
-import random
 from urllib.parse import quote_plus, unquote_plus
 from functools import partial
 print = partial(print, flush=True)
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-from jd_sign import *
+try:
+    from jd_sign import *
+except ImportError as e:
+    print(e)
+    if "No module" in str(e):
+        print("请先运行HarbourJ库依赖一键安装脚本(jd_check_dependent.py)，安装jd_sign.so依赖")
 try:
     from jdCookie import get_cookies
     getCk = get_cookies()
@@ -35,6 +33,7 @@ except:
     print("请先下载依赖脚本，\n下载链接: https://raw.githubusercontent.com/HarbourJ/HarbourToulu/main/jdCookie.py")
     sys.exit(3)
 redis_url = os.environ.get("redis_url") if os.environ.get("redis_url") else "172.17.0.1"
+redis_port = os.environ.get("redis_port") if os.environ.get("redis_port") else "6379"
 redis_pwd = os.environ.get("redis_pwd") if os.environ.get("redis_pwd") else ""
 jd_wxCompleteInfoId = os.environ.get("jd_wxCompleteInfoId") if os.environ.get("jd_wxCompleteInfoId") else ""
 
@@ -57,7 +56,7 @@ def redis_conn():
                 os.system("pip install redis")
             import redis
         try:
-            pool = redis.ConnectionPool(host=redis_url, port=6379, decode_responses=True, socket_connect_timeout=5, password=redis_pwd)
+            pool = redis.ConnectionPool(host=redis_url, port=redis_port, decode_responses=True, socket_connect_timeout=5, password=redis_pwd)
             r = redis.Redis(connection_pool=pool)
             r.get('conn_test')
             print('✅redis连接成功')
@@ -75,17 +74,44 @@ def getToken(ck, r=None):
         pt_pin = unquote_plus(re.compile(r'pt_pin=(.*?);').findall(ck)[0])
     except:
         # redis缓存Token 活动域名+ck前7位(获取pin失败)
-        pt_pin = ck[:8]
-
-    if r is not None:
-        Token = r.get(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}')
-        # print("Token过期时间", r.ttl(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}'))
-        if Token is not None:
-            # print(f"♻️获取缓存Token->: {Token}")
-            print(f"♻️获取缓存Token")
-            return Token
+        pt_pin = ck[:15]
+    try:
+        if r is not None:
+            Token = r.get(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}')
+            # print("Token过期时间", r.ttl(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}'))
+            if Token is not None:
+                print(f"♻️获取缓存Token")
+                return Token
+            else:
+                # print("🈳去设置Token缓存")
+                s.headers = {
+                    'Connection': 'keep-alive',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'User-Agent': '',
+                    'Cookie': ck,
+                    'Host': 'api.m.jd.com',
+                    'Referer': '',
+                    'Accept-Language': 'zh-Hans-CN;q=1 en-CN;q=0.9',
+                    'Accept': '*/*'
+                }
+                sign_txt = sign({"url": f"{host}", "id": ""}, 'isvObfuscator')
+                # print(sign_txt)
+                f = s.post('https://api.m.jd.com/client.action', verify=False, timeout=30)
+                if f.status_code != 200:
+                    print(f.status_code)
+                    return
+                else:
+                    if "参数异常" in f.text:
+                        return
+                Token_new = f.json()['token']
+                # print(f"Token->: {Token_new}")
+                if r.set(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}', Token_new, ex=1800):
+                    print("✅Token缓存成功")
+                else:
+                    print("❌Token缓存失败")
+                return Token_new
         else:
-            print("🈳去设置Token缓存")
             s.headers = {
                 'Connection': 'keep-alive',
                 'Accept-Encoding': 'gzip, deflate, br',
@@ -106,37 +132,11 @@ def getToken(ck, r=None):
             else:
                 if "参数异常" in f.text:
                     return
-            Token_new = f.json()['token']
-            # print(f"Token->: {Token_new}")
-            if r.set(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}', Token_new, ex=1800):
-                print("✅Token缓存设置成功")
-            else:
-                print("❌Token缓存设置失败")
-            return Token_new
-    else:
-        s.headers = {
-            'Connection': 'keep-alive',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'User-Agent': '',
-            'Cookie': ck,
-            'Host': 'api.m.jd.com',
-            'Referer': '',
-            'Accept-Language': 'zh-Hans-CN;q=1 en-CN;q=0.9',
-            'Accept': '*/*'
-        }
-        sign_txt = sign({"url": f"{host}", "id": ""}, 'isvObfuscator')
-        # print(sign_txt)
-        f = s.post('https://api.m.jd.com/client.action', verify=False, timeout=30)
-        if f.status_code != 200:
-            print(f.status_code)
-            return
-        else:
-            if "参数异常" in f.text:
-                return
-        Token = f.json()['token']
-        print(f"Token->: {Token}")
-        return Token
+            Token = f.json()['token']
+            print(f"✅获取实时Token")
+            return Token
+    except:
+        return
 
 def getJdTime():
     jdTime = int(round(time.time() * 1000))
