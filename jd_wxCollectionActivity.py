@@ -44,7 +44,8 @@ if not activity_url or "wxCollectionActivity/activity" not in activity_url:
     sys.exit()
 activityUrl = activity_url.replace('isvjd', 'isvjcloud').split('&')[0]
 activityId = activityUrl.split('activityId=')[1]
-print(f"【🛳活动入口】{activityUrl}")
+print(f"【🛳活动入口】{activityUrl}\n")
+runNums = int(runNums)
 if runNums == 10:
     print('🤖本次加购默认跑前10个账号,设置自定义变量:export jd_wxCollectionActivityRunNums="需要运行加购的ck数量"')
 else:
