@@ -240,8 +240,8 @@ def getMyPing(index, venderId):
     else:
         print(f"⚠️{res['errorMessage']}")
         if index == 1 and "火爆" in res['errorMessage']:
-            print(f"\t⛈车头黑,退出本程序！")
-            sys.exit()
+            print(f"\t⛈车头黑,暂时不退出本程序！帮船长跑一下吧😆")
+            # sys.exit()
 
 def accessLogWithAD(venderId, pin):
     url = "https://lzdz1-isv.isvjcloud.com/common/accessLogWithAD"
