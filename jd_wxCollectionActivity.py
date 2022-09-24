@@ -383,6 +383,8 @@ def followShop(venderId, pin, activityType):
         return hasFollowShop
     else:
         print(f"⛈{res['errorMessage']}")
+        if "店铺会员" in res['errorMessage']:
+            return 99
 
 def getInfo():
     url = f"https://lzkj-isv.isvjcloud.com/miniProgramShareInfo/getInfo?activityId={activityId}"
@@ -585,7 +587,9 @@ if __name__ == '__main__':
             getInfo()
             if needFollow:
                 if not hasFollow:
-                    followShop(venderId, secretPin, activityType)
+                    FS = followShop(venderId, secretPin, activityType)
+                    if FS == 99:
+                        continue
             time.sleep(0.2)
             addSkuNums = needCollectionSize - hasCollectionSize
             if oneKeyAddCart == 1:
