@@ -7,7 +7,7 @@ Author: HarbourJ
 Date: 2022/9/16 20:37
 TG: https://t.me/HarbourToulu
 TgChat: https://t.me/HarbourSailing
-cron: 0 0 0,8,23 16-27 9 *
+cron: 0 0 0,8,11,23 16-24 9 *
 new Env('0916-0924 跨店联合 金秋送福');
 ActivityEntry: https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity?activityId=7cc40c6985a74ffd889c60e0f101e6bb
 Description: 0916-0924 跨店联合 金秋送福 (开卡10 邀请20 加购关注5)
