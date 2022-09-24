@@ -2,33 +2,31 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_opencard0916.py(9.16-9.23 庆丰收 赢好礼)
+File: jd_opencard0917.py(0916-0924 跨店联合 金秋送福)
 Author: HarbourJ
 Date: 2022/9/16 20:37
 TG: https://t.me/HarbourToulu
 TgChat: https://t.me/HarbourSailing
-cron: 0 0 0,10,21 16-23 9 *
-new Env('9.16-9.23 庆丰收 赢好礼');
-ActivityEntry: https://lzdz1-isv.isvjcloud.com/m/1000077335/7722148/dz2231213841a094c4500886aa4c8f/?shareUuid=889073c4b87a4c2796b2fc517500431f&adsource=null
-Description: 9.16-9.23 庆丰收 赢好礼 (开卡5 邀请10 加购关注5)
-            并发变量: export jd_opencard0916_uuid="你的助力码"
+cron: 0 0 0,8,23 16-27 9 *
+new Env('0916-0924 跨店联合 金秋送福');
+ActivityEntry: https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity?activityId=7cc40c6985a74ffd889c60e0f101e6bb
+Description: 0916-0924 跨店联合 金秋送福 (开卡10 邀请20 加购关注5)
+            并发变量: export jd_joinCommon_uuid="你的助力码"
 """
 
-import time
-import requests
-import sys
-import re
-import os
+import requests, sys, os, re, time, json, random
 from datetime import datetime
-import json
-import random
 from urllib.parse import quote_plus, unquote_plus
 from functools import partial
 print = partial(print, flush=True)
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
-
-from jd_sign import *
+try:
+    from jd_sign import *
+except ImportError as e:
+    print(e)
+    if "No module" in str(e):
+        print("请先运行HarbourJ库依赖一键安装脚本(jd_check_dependent.py)，安装jd_sign.so依赖")
 try:
     from jdCookie import get_cookies
     getCk = get_cookies()
@@ -37,13 +35,14 @@ except:
     sys.exit(3)
 
 redis_url = os.environ.get("redis_url") if os.environ.get("redis_url") else "172.17.0.1"
+redis_port = os.environ.get("redis_port") if os.environ.get("redis_port") else "6379"
 redis_pwd = os.environ.get("redis_pwd") if os.environ.get("redis_pwd") else ""
-inviterUuid = os.environ.get("jd_opencard0916_uuid") if os.environ.get("jd_opencard0916_uuid") else ""
+inviterUuid = os.environ.get("jd_joinCommon_uuid") if os.environ.get("jd_joinCommon_uuid") else ""
 
-venderId = "1000077335"
-activityId = "dz2231213841a094c4500886aa4c8f"
-activity_url = f"https://lzdz1-isv.isvjcloud.com/m/1000077335/7722148/{activityId}/?shareUuid={inviterUuid}&adsource=null"
-print(f"【🛳活动入口】{activity_url}")
+activityId = "7cc40c6985a74ffd889c60e0f101e6bb"
+shopId = "1000004123"
+activity_url = f"https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/5929859?activityId={activityId}&shareUuid={inviterUuid}&adsource=null&shareuserid4minipg=null&lng=00.000000&lat=00.000000&sid=&un_area=&&shopid={shopId}"
+print(f"【🛳活动入口】https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/5929859?activityId={activityId}")
 
 def redis_conn():
     try:
@@ -73,11 +72,10 @@ def getToken(ck, r=None):
             Token = r.get(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}')
             # print("Token过期时间", r.ttl(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}'))
             if Token is not None:
-                # print(f"♻️获取缓存Token->: {Token}")
                 print(f"♻️获取缓存Token")
                 return Token
             else:
-                print("🈳去设置Token缓存")
+                # print("🈳去设置Token缓存")
                 s.headers = {
                     'Connection': 'keep-alive',
                     'Accept-Encoding': 'gzip, deflate, br',
@@ -101,9 +99,9 @@ def getToken(ck, r=None):
                 Token_new = f.json()['token']
                 # print(f"Token->: {Token_new}")
                 if r.set(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}', Token_new, ex=1800):
-                    print("✅Token缓存设置成功")
+                    print("✅Token缓存成功")
                 else:
-                    print("❌Token缓存设置失败")
+                    print("❌Token缓存失败")
                 return Token_new
         else:
             s.headers = {
@@ -127,7 +125,7 @@ def getToken(ck, r=None):
                 if "参数异常" in f.text:
                     return
             Token = f.json()['token']
-            print(f"Token->: {Token}")
+            print(f"✅获取实时Token")
             return Token
     except:
         return
@@ -156,16 +154,16 @@ def refresh_cookies(res):
         activityCookie = ''.join(sorted([(set_cookie + ";") for set_cookie in list(set(activityCookieMid + set_cookie))]))
 
 def getActivity():
-    url = "https://lzdz1-isv.isvjcloud.com/wxCommonInfo/token"
+    url = activityUrl
     headers = {
         'Host': 'lzdz1-isv.isvjcloud.com',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'User-Agent': ua,
         'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
         'Accept-Encoding': 'gzip, deflate, br',
-        'Connection': 'keep-alive',
-        'Referer': activityUrl
+        'Connection': 'keep-alive'
     }
+
     response = requests.request("GET", url, headers=headers)
     if response.status_code == 200:
         if response.cookies:
@@ -177,36 +175,9 @@ def getActivity():
         print(response.status_code, "⚠️ip疑似黑了,休息一会再来撸~")
         sys.exit()
 
-def getMyCidPing(index, venderId):
-    url = "https://lzdz1-isv.isvjcloud.com/customer/getMyCidPing"
-    payload = f"userId={venderId}&token={token}&fromType=APP&pin="
-    headers = {
-        'Host': 'lzdz1-isv.isvjcloud.com',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Origin': 'https://lzdz1-isv.isvjcloud.com',
-        'User-Agent': ua,
-        'Connection': 'keep-alive',
-        'Referer': activityUrl,
-        'Cookie': activityCookie
-    }
-    response = requests.request("POST", url, headers=headers, data=payload)
-    refresh_cookies(response)
-    res = response.json()
-    if res['result']:
-        return res['data']['nickname'], res['data']['secretPin'], res['data']['cid'] # c3f202cfbc91c3fa90c74b38a1855783
-    else:
-        print(f"⚠️{res['errorMessage']}")
-        if index == 1 and "火爆" in res['errorMessage']:
-            print(f"\t⛈车头黑,退出本程序！")
-            sys.exit()
-
 def getSystemConfigForNew():
     url = "https://lzdz1-isv.isvjcloud.com/wxCommonInfo/getSystemConfigForNew"
-    payload = f'activityId={activityId}&activityType=99&pin='
+    payload = f'activityId={activityId}&activityType=99'
     headers = {
         'Host': 'lzdz1-isv.isvjcloud.com',
         'Accept': 'application/json',
@@ -225,7 +196,7 @@ def getSystemConfigForNew():
 
 def getSimpleActInfoVo():
     url = "https://lzdz1-isv.isvjcloud.com/dz/common/getSimpleActInfoVo"
-    payload = f"activityId={activityId}&pin="
+    payload = f"activityId={activityId}"
     headers = {
         'Host': 'lzdz1-isv.isvjcloud.com',
         'Accept': 'application/json',
@@ -247,9 +218,9 @@ def getSimpleActInfoVo():
     else:
         print(res['errorMessage'])
 
-def init():
-    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/taskact/common/init"
-    payload = f"activityId={activityId}&pin="
+def getMyPing(index, venderId):
+    url = "https://lzdz1-isv.isvjcloud.com/customer/getMyPing"
+    payload = f"userId={venderId}&token={token}&fromType=APP"
     headers = {
         'Host': 'lzdz1-isv.isvjcloud.com',
         'Accept': 'application/json',
@@ -265,10 +236,18 @@ def init():
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     refresh_cookies(response)
+    res = response.json()
+    if res['result']:
+        return res['data']['nickname'], res['data']['secretPin']
+    else:
+        print(f"⚠️{res['errorMessage']}")
+        if index == 1 and "火爆" in res['errorMessage']:
+            print(f"\t⛈车头黑,退出本程序！")
+            sys.exit()
 
 def accessLogWithAD(venderId, pin):
     url = "https://lzdz1-isv.isvjcloud.com/common/accessLogWithAD"
-    payload = f"venderId={venderId}&code=99&pin={quote_plus(pin)}&activityId={activityId}&pageUrl={quote_plus(activityUrl)}&subType=JDApp&adSource=null"
+    payload = f"venderId={venderId}&code=99&pin={quote_plus(pin)}&activityId={activityId}&pageUrl={quote_plus(activityUrl)}&subType=app&adSource=null"
     headers = {
         'Host': 'lzdz1-isv.isvjcloud.com',
         'Accept': 'application/json',
@@ -328,12 +307,12 @@ def getUserInfo(pin):
         print(res['errorMessage'])
 
 def activityContent(pin, pinImg, nickname):
-    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/sep/fulinmen/activityContent"
+    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activityContent"
     try:
         yunMidImageUrl = quote_plus(pinImg)
     except:
         yunMidImageUrl = quote_plus("https://img10.360buyimg.com/imgzone/jfs/t1/21383/2/6633/3879/5c5138d8E0967ccf2/91da57c5e2166005.jpg")
-    payload = f"activityId={activityId}&pin={quote_plus(pin)}&pinImg={yunMidImageUrl}&nick={quote_plus(nickname)}&shareUuid={shareUuid}"
+    payload = f"activityId={activityId}&pin={quote_plus(pin)}&pinImg={yunMidImageUrl}&nick={quote_plus(nickname)}&cjyxPin=&cjhyPin=&shareUuid={shareUuid}"
     headers = {
         'Host': 'lzdz1-isv.isvjcloud.com',
         'Accept': 'application/json',
@@ -357,50 +336,9 @@ def activityContent(pin, pinImg, nickname):
         if "活动已结束" in res['errorMessage']:
             sys.exit()
 
-def drawContent(pin):
-    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/taskact/common/drawContent"
-    payload = f"activityId={activityId}&pin={quote_plus(pin)}"
-    headers = {
-        'Host': 'lzdz1-isv.isvjcloud.com',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Origin': 'https://lzdz1-isv.isvjcloud.com',
-        'User-Agent': ua,
-        'Connection': 'keep-alive',
-        'Referer': activityUrl,
-        'Cookie': activityCookie
-    }
-    requests.request("POST", url, headers=headers, data=payload)
-
-def getDayShareRecord(pin, actorUuid):
-    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/taskact/common/getDayShareRecord"
-    payload = f"activityId={activityId}&pin={quote_plus(pin)}&actorUuid={actorUuid}"
-    headers = {
-        'Host': 'lzdz1-isv.isvjcloud.com',
-        'Accept': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Origin': 'https://lzdz1-isv.isvjcloud.com',
-        'User-Agent': ua,
-        'Connection': 'keep-alive',
-        'Referer': activityUrl,
-        'Cookie': activityCookie
-    }
-    response = requests.request("POST", url, headers=headers, data=payload)
-    res = response.json()
-    if res['result']:
-        return res['data']
-    else:
-        print(res['errorMessage'])
-
-def initOpenCard(pin, actorUuid, shareUuid):
-    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/sep/fulinmen/initOpenCard"
-    payload = f"activityId={activityId}&pin={quote_plus(pin)}&actorUuid={actorUuid}&shareUuid={shareUuid}"
+def shareRecord(pin, actorUuid):
+    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/shareRecord"
+    payload = f"activityId={activityId}&pin={quote_plus(pin)}&uuid={actorUuid}&num=30"
     headers = {
         'Host': 'lzdz1-isv.isvjcloud.com',
         'Accept': 'application/json',
@@ -416,15 +354,70 @@ def initOpenCard(pin, actorUuid, shareUuid):
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     refresh_cookies(response)
+
+def taskRecord(pin, actorUuid):
+    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/taskRecord"
+    payload = f"activityId={activityId}&pin={quote_plus(pin)}&uuid={actorUuid}&taskType="
+    headers = {
+        'Host': 'lzdz1-isv.isvjcloud.com',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Origin': 'https://lzdz1-isv.isvjcloud.com',
+        'User-Agent': ua,
+        'Connection': 'keep-alive',
+        'Referer': activityUrl,
+        'Cookie': activityCookie
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    refresh_cookies(response)
+
+def drawContent(actorUuid, pin):
+    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/taskact/common/drawContent"
+    payload = f"activityId={actorUuid}&pin={quote_plus(pin)}"
+    headers = {
+        'Host': 'lzdz1-isv.isvjcloud.com',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Origin': 'https://lzdz1-isv.isvjcloud.com',
+        'User-Agent': ua,
+        'Connection': 'keep-alive',
+        'Referer': activityUrl,
+        'Cookie': activityCookie
+    }
+    requests.request("POST", url, headers=headers, data=payload)
+
+def taskInfo(pin):
+    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/taskInfo"
+    payload = f"activityId={activityId}&pin={quote_plus(pin)}"
+    headers = {
+        'Host': 'lzdz1-isv.isvjcloud.com',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Origin': 'https://lzdz1-isv.isvjcloud.com',
+        'User-Agent': ua,
+        'Connection': 'keep-alive',
+        'Referer': activityUrl,
+        'Cookie':  activityCookie
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
     res = response.json()
     if res['result']:
         return res['data']
     else:
         print(res['errorMessage'])
 
-def saveTask(actorUuid, shareUuid, pin, taskType, taskValue):
-    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/sep/fulinmen/saveTask"
-    payload = f"activityId={activityId}&actorUuid={actorUuid}&shareUuid={shareUuid}&pin={quote_plus(pin)}&taskType={taskType}&taskValue={taskValue}"
+def assist(pin, uuid):
+    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/assist"
+    payload = f"activityId={activityId}&pin={quote_plus(pin)}&uuid={uuid}&shareUuid={shareUuid}"
     headers = {
         'Host': 'lzdz1-isv.isvjcloud.com',
         'Accept': 'application/json',
@@ -441,19 +434,41 @@ def saveTask(actorUuid, shareUuid, pin, taskType, taskValue):
     response = requests.request("POST", url, headers=headers, data=payload)
     res = response.json()
     if res['result']:
-        data = res['data']
-        print(f"saveTask-->{data}")
-        return data
-        # if data['score'] == 0:
-        #     print("\t获得 💨💨💨")
-        # else:
-        #     print(f"\t🎉获得{data['score']}积分")
+        return res['data']
     else:
-        print(f"\t{res['errorMessage']}")
+        print(res['errorMessage'])
+
+def doTask(actorUuid, pin, taskType):
+    url = "https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/doTask"
+    payload = f"activityId={activityId}&uuid={actorUuid}&pin={quote_plus(pin)}&taskType={taskType}&taskValue="
+    headers = {
+        'Host': 'lzdz1-isv.isvjcloud.com',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept-Language': 'zh-CN,zh-Hans;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Origin': 'https://lzdz1-isv.isvjcloud.com',
+        'User-Agent': ua,
+        'Connection': 'keep-alive',
+        'Referer': activityUrl,
+        'Cookie': activityCookie
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    res = response.json()
+    print('doTask', res)
+    if res['result']:
+        data = res['data']
+        if data['score'] == 0:
+            print("\t获得 💨💨💨")
+        else:
+            print(f"\t🎉获得{data['score']}积分")
+    else:
+        print(res['errorMessage'])
 
 def bindWithVender(cookie, venderId):
     try:
-        shopcard_url0 = f"https://lzdz1-isv.isvjcloud.com/dingzhi/drinkcategory/piecetoge1/activity/7854908?activityId={activityId}&shareUuid={shareUuid}"
+        shopcard_url0 = f"https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/7854908?activityId={activityId}&shareUuid={shareUuid}"
         shopcard_url = f"https://shopmember.m.jd.com/shopcard/?venderId={venderId}&channel=401&returnUrl={quote_plus(shopcard_url0)}"
         body = {"venderId": venderId, "bindByVerifyCodeFlag": 1,"registerExtend": {},"writeChildFlag":0, "channel": 401}
         url = f'https://api.m.jd.com/client.action?appid=jd_shop_member&functionId=bindWithVender&body={json.dumps(body)}&client=H5&clientVersion=9.2.0&uuid=88888&h5st=20220614102046318%3B7327310984571307%3Bef79a%3Btk02wa31b1c7718neoZNHBp75rw4pE%2Fw7fXko2SdFCd1vIeWy005pEHdm0lw2CimWpaw3qc9il8r9xVLHp%2Bhzmo%2B4swg%3Bdd9526fc08234276b392435c8623f4a737e07d4503fab90bf2cd98d2a3a778ac%3B3.0%3B1655173246318'
@@ -474,7 +489,7 @@ def bindWithVender(cookie, venderId):
         print(e)
 
 def getShopOpenCardInfo(cookie, venderId):
-    shopcard_url0 = f"https://lzdz1-isv.isvjcloud.com/dingzhi/drinkcategory/piecetoge1/activity/7854908?activityId={activityId}&shareUuid={shareUuid}"
+    shopcard_url0 = f"https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/7854908?activityId={activityId}&shareUuid={shareUuid}"
     shopcard_url = f"https://shopmember.m.jd.com/shopcard/?venderId={venderId}&channel=401&returnUrl={quote_plus(shopcard_url0)}"
     try:
         body = {"venderId": str(venderId), "channel": "401"}
@@ -516,7 +531,7 @@ if __name__ == '__main__':
         activityUrl = activity_url
     else:
         shareUuid = remote_redis(f"lzdz1_{activityId}", 2)
-        activityUrl = f"https://lzdz1-isv.isvjcloud.com/m/1000077335/7722148/{activityId}/?shareUuid={shareUuid}&adsource=null"
+        activityUrl = f"https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/5929859?activityId={activityId}&shareUuid={shareUuid}&adsource=null&shareuserid4minipg=null&lng=00.000000&lat=00.000000&sid=&un_area=&&shopid={shopId}"
     num = 0
     for cookie in cks[:]:
         num += 1
@@ -552,9 +567,9 @@ if __name__ == '__main__':
         if getSimAct:
             venderId = getSimAct['venderId']
         else:
-            venderId = "1000015664"
+            venderId = shopId
         time.sleep(0.2)
-        getPin = getMyCidPing(num, venderId)
+        getPin = getMyPing(num, venderId)
         if getPin is not None:
             nickname = getPin[0]
             secretPin = getPin[1]
@@ -577,77 +592,85 @@ if __name__ == '__main__':
                 print("活动已结束，下次早点来~")
                 sys.exit()
             print(f"✅开启【{actContent['activityName']}】活动\n")
-            actorUuid = actContent['actorUuid']
-            followShop = actContent['allFollowShop']
-            takeCoupon = actContent['takeCoupon']
-            addSku = actContent['skuAddCart']
-
+            if num == 1:
+                print(f"🛳 已邀请{actContent['actorInfo']['totalAssistCount']}, 有效助力{actContent['actorInfo']['assistCount']}")
+            actorUuid = actContent['actorInfo']['uuid']
+            taskType = actContent['taskType']
             print(f"邀请码->: {actorUuid}")
             print(f"准备助力->: {shareUuid}")
             time.sleep(0.5)
-            drawContent(pin)
+            shareRecord(pin, actorUuid)
             time.sleep(0.5)
-            initOC = initOpenCard(pin, actorUuid, shareUuid)
-            allOpenCard = initOC['allOpenCard']
-            isAssist = initOC['openCardAndSendJd']
-            assistStatus = initOC['assistStatus']
-            openInfo = initOC['openInfo']
-            if allOpenCard:
+            taskRecord(pin, actorUuid)
+            time.sleep(0.5)
+            print("现在去一键关注店铺")
+            doTask(actorUuid, pin, 20)
+            time.sleep(1)
+            doTask(actorUuid, pin, 23)
+            time.sleep(1)
+            ass0 = assist(pin, actorUuid)
+            assistState0 = ass0['assistState']
+            openAll0 = ass0['openCardInfo']['openAll']
+            openVenderId0 = ass0['openCardInfo']['openVenderId']
+            assStat = False
+            if openAll0:
                 print("已完成全部开卡任务")
-                print(f"助力状态-->{isAssist},{assistStatus}")
-                if assistStatus == 0:
-                    print("无法助力自己")
-                elif assistStatus == 2:
-                    print("已经助力过好友")
+                if assistState0 == 0:
+                    print("已经助力过你~")
+                # elif assistState0 == 0:
+                #     print("无法助力自己~")
+                elif assistState0 == 3:
+                    print("已助力过其他好友~")
+                elif assistState0 == 1:
+                    print("已完成开卡关注任务,未助力过好友~")
+                    assStat = True
+                else:
+                    # print('assistStatus:', assistState0)
+                    assStat = True
             else:
                 print("现在去开卡")
-                unOpenCardLists = [i['venderId'] for i in openInfo if not i['openStatus']]
+                task_info0 = taskInfo(pin)
+                openCardList = task_info0['1']['settingInfo']
+                openCardLists = [(int(i['value']), i['name']) for i in openCardList]
+                unOpenCardLists = [i for i in openCardLists if i[0] not in openVenderId0]
                 for shop in unOpenCardLists:
-                    print(f"去开卡 {shop}")
-                    venderId = shop
-                    venderCardName = getShopOpenCardInfo(cookie, venderId)
+                    print(f"去开卡 {shop[1]} {shop[0]}")
+                    venderId = shop[0]
+                    venderCardName = shop[1]
+                    getShopOpenCardInfo(cookie, venderId)
                     open_result = bindWithVender(cookie, venderId)
                     if open_result is not None:
-                        if "火爆" in open_result or "失败" in open_result:
+                        if "火爆" in open_result:
                             time.sleep(1.5)
                             print("\t尝试重新入会 第1次")
                             open_result = bindWithVender(cookie, venderId)
-                            if "火爆" in open_result or "失败" in open_result:
+                            if "火爆" in open_result:
                                 time.sleep(1.5)
                                 print("\t尝试重新入会 第2次")
                                 open_result = bindWithVender(cookie, venderId)
-                        if "火爆" in open_result or "失败" in open_result:
+                        if "火爆" in open_result:
                             print(f"\t⛈⛈{venderCardName} {open_result}")
+                            assStat = False
                         else:
                             print(f"\t🎉🎉{venderCardName} {open_result}")
+                            assStat = True
                     time.sleep(1.5)
-                activityContent(pin, yunMidImageUrl, nickname)
-                drawContent(pin)
-                initOC = initOpenCard(pin, actorUuid, shareUuid)
-                allOpenCard = initOC['allOpenCard']
-                isAssist = initOC['openCardAndSendJd']
-                assistStatus = initOC['assistStatus']
-                if allOpenCard:
-                    print("已完成全部开卡任务")
-                    print(f"助力状态-->{isAssist} {assistStatus}")
+            activityContent(pin, yunMidImageUrl, nickname)
+            shareRecord(pin, actorUuid)
             time.sleep(0.5)
-            print("现在去一键关注店铺")
-            st = saveTask(actorUuid, shareUuid, pin, 23, 23)
-            if st:
-                if st['assistStatus'] == 1:
-                    print("🎉🎉🎉助力成功")
-                    inviteSuccNum += 1
-                    print(f"\t本次车头已邀请{inviteSuccNum}人")
+            taskRecord(pin, actorUuid)
             time.sleep(0.5)
-            print("现在去一键加购")
-            saveTask(actorUuid, shareUuid, pin, 21, 21)
-            getSR = getDayShareRecord(pin, actorUuid)
-            if getSR:
-                print(f"🎉🎉🎉已成功邀请{len(getSR)}人")
+            ass1 = assist(pin, actorUuid)
+            assistState1 = ass1['assistState']
+            if assStat and assistState1 == 1:
+                print("🎉🎉🎉助力成功~")
+                inviteSuccNum += 1
+                print(f"本次车头已邀请{inviteSuccNum}人")
+
             if num == 1:
                 print(f"后面账号全部助力 {actorUuid}")
             if num == 1:
                 shareUuid = actorUuid
-                activityUrl = f"https://lzdz1-isv.isvjcloud.com/m/1000077335/7722148/{activityId}/?shareUuid={shareUuid}&adsource=null"
+                activityUrl = f"https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/5929859?activityId={activityId}&shareUuid={shareUuid}&adsource=null&shareuserid4minipg=null&lng=00.000000&lat=00.000000&sid=&un_area=&&shopid={shopId}"
 
         time.sleep(3)
