@@ -16,6 +16,7 @@ Description: 本地sign算法+redis缓存Token
 
 import time, requests, sys, re, os, json, random
 from datetime import datetime
+from sendNotify import *
 from urllib.parse import quote_plus, unquote_plus
 from functools import partial
 print = partial(print, flush=True)
@@ -188,6 +189,7 @@ def getActivity():
         return set_cookie, activityType
     else:
         print(response.status_code, "⚠️疑似ip黑了")
+        msg += f'{response.status_code} ⚠️疑似ip黑了\n'
         sys.exit()
 
 def getSystemConfigForNew(activityType):
@@ -257,6 +259,7 @@ def getMyPing(venderId):
             print(f"⚠️{res['errorMessage']}")
     else:
         print(response.status_code, "⚠️疑似ip黑了")
+        msg += f'{response.status_code} ⚠️疑似ip黑了\n'
         sys.exit()
 
 def accessLogWithAD(venderId, pin, activityType):
@@ -511,15 +514,19 @@ def getPrize(pin):
             errorMessage = data['errorMessage']
             print(f"⛈{errorMessage}")
             if "不足" in errorMessage:
+                msg += f"⛈{errorMessage}\n"
                 sys.exit()
             return
     else:
         print(f"⛈{res['errorMessage']}")
         if '奖品已发完' in res['errorMessage']:
+            msg += f"⛈{errorMessage}\n"
             sys.exit()
 
 
 if __name__ == '__main__':
+    global msg
+    msg = ''
     r = redis_conn()
     try:
         cks = getCk
@@ -586,6 +593,7 @@ if __name__ == '__main__':
             if num == 1:
                 print(f"✅开启{shopName}-加购活动,需关注加购{needCollectionSize}个商品")
                 print(f"🎁奖品{priceName}\n")
+                msg += f'✅开启{shopName}-加购活动\n📝活动地址{activityUrl}\n🎁奖品{priceName}\n\n'
             time.sleep(0.2)
             getInfo()
             if needFollow:
@@ -612,10 +620,20 @@ if __name__ == '__main__':
                             print(f"🛳成功加购{hasAddCartSize}个商品")
                             break
             time.sleep(0.35)
-            priceName = getPrize(secretPin)
-            if priceName:
+            for i in range(3):
+                priceName = getPrize(secretPin)
+                if "擦肩" in priceName:
+                    time.sleep(0.2)
+                    continue
+                else:
+                    break
+            if "擦肩" not in priceName:
                 print(f"🎉获得{priceName}")
+                msg += f'【账号{num}】{pt_pin}\n🎉{priceName}\n\n'
             else:
                 print(f"😭获得💨💨💨")
 
-        time.sleep(3)
+        time.sleep(1.5)
+
+    title = "🗣消息提醒：加购有礼-JK"
+    send(title, msg)
