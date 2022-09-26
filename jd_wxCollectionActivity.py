@@ -248,12 +248,16 @@ def getMyPing(venderId):
         'Cookie': activityCookie
     }
     response = requests.request("POST", url, headers=headers, data=payload)
-    refresh_cookies(response)
-    res = response.json()
-    if res['result']:
-        return res['data']['nickname'], res['data']['secretPin']
+    if response.status_code == 200:
+        refresh_cookies(response)
+        res = response.json()
+        if res['result']:
+            return res['data']['nickname'], res['data']['secretPin']
+        else:
+            print(f"⚠️{res['errorMessage']}")
     else:
-        print(f"⚠️{res['errorMessage']}")
+        print(response.status_code, "⚠️疑似ip黑了")
+        sys.exit()
 
 def accessLogWithAD(venderId, pin, activityType):
     url = "https://lzkj-isv.isvjcloud.com/common/accessLogWithAD"
@@ -544,25 +548,24 @@ if __name__ == '__main__':
             print(f"⚠️获取Token失败！⏰等待2s")
             time.sleep(2)
             continue
-        time.sleep(0.2)
+        time.sleep(0.3)
         getAct = getActivity()
         activityCookie = getAct[0]
         activityType = getAct[1]
-        time.sleep(0.3)
+        time.sleep(0.35)
         getSystemConfigForNew(activityType)
-        time.sleep(0.2)
+        time.sleep(0.35)
         getSimAct = getSimpleActInfoVo()
         venderId = getSimAct['venderId']
-        time.sleep(0.2)
+        time.sleep(0.35)
         getPin = getMyPing(venderId)
         if getPin is not None:
             nickname = getPin[0]
             secretPin = getPin[1]
-            time.sleep(0.3)
+            time.sleep(0.35)
             accessLogWithAD(venderId, secretPin, activityType)
-            time.sleep(0.2)
+            time.sleep(0.35)
             actCont = activityContent(secretPin)
-            # needCollectionSize, hasCollectionSize, needFollow, hasFollow, cpvos, drawOk, priceName, oneKeyAddCart
             if not actCont:
                 continue
             needCollectionSize = actCont[0]
@@ -578,7 +581,7 @@ if __name__ == '__main__':
                 continue
             else:
                 skuIds = [covo['skuId'] for covo in cpvos if not covo['collection']]
-            time.sleep(0.2)
+            time.sleep(0.35)
             shopName = shopInfo()
             if num == 1:
                 print(f"✅开启{shopName}-加购活动,需关注加购{needCollectionSize}个商品")
@@ -590,7 +593,7 @@ if __name__ == '__main__':
                     FS = followShop(venderId, secretPin, activityType)
                     if FS == 99:
                         continue
-            time.sleep(0.2)
+            time.sleep(0.35)
             addSkuNums = needCollectionSize - hasCollectionSize
             if oneKeyAddCart == 1:
                 hasAddCartSize = oneKeyAdd(skuIds, secretPin)
@@ -603,12 +606,12 @@ if __name__ == '__main__':
                         hasAddCartSize = addCard(productId, secretPin)
                     elif activityType == 5:
                         hasAddCartSize = collection(productId, secretPin)
-                    time.sleep(0.2)
+                    time.sleep(0.25)
                     if hasAddCartSize:
                         if hasAddCartSize == addSkuNums:
                             print(f"🛳成功加购{hasAddCartSize}个商品")
                             break
-            time.sleep(0.1)
+            time.sleep(0.35)
             priceName = getPrize(secretPin)
             if priceName:
                 print(f"🎉获得{priceName}")
