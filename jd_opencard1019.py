@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_opencard0922.py(10.10-10.17 大牌联合 好物抢先GO)
+File: jd_opencard1019.py(10.19-10.26 金秋欢乐购 好物大联盟)
 Author: HarbourJ
-Date: 2022/9/27 00:10
+Date: 2022/10/19 11:00
 TG: https://t.me/HarbourToulu
 TgChat: https://t.me/HarbourSailing
-cron: 0 1 1,8,21 10-17 10 *
-new Env('10.10-10.17 大牌联合 好物抢先GO');
-ActivityEntry: https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/activity?activityId=d22eadf8daee4147ade3e73728256a18
+cron: 0 30 1,13,21 19-26 10 *
+new Env('10.19-10.26 金秋欢乐购 好物大联盟');
+ActivityEntry: https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/activity?activityId=2a4dcb7dda9e47cf873beff950976219
 """
 
 import time, requests, sys, re, os, json, random
@@ -37,8 +37,8 @@ redis_port = os.environ.get("redis_port") if os.environ.get("redis_port") else "
 redis_pwd = os.environ.get("redis_pwd") if os.environ.get("redis_pwd") else ""
 inviterUuid = os.environ.get("jd_joinCommon_uuid") if os.environ.get("jd_joinCommon_uuid") else ""
 
-activityId = "d22eadf8daee4147ade3e73728256a18"
-shopId = "1000000904"
+activityId = "2a4dcb7dda9e47cf873beff950976219"
+shopId = "1000092822"
 activity_url = f"https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/5929859?activityId={activityId}&shareUuid={inviterUuid}&adsource=null&shareuserid4minipg=null&lng=00.000000&lat=00.000000&sid=&un_area=&&shopid={shopId}"
 print(f"【🛳活动入口】https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/5929859?activityId={activityId}")
 
