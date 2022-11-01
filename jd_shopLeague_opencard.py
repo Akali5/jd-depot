@@ -13,6 +13,7 @@ ActivityEntry: https://lzdz1-isv.isvjd.com/dingzhi/shop/league/activity?activity
 Description: dingzhi/shop/league系列通用开卡脚本(通常情况下,开一张卡5,最高获得220豆,邀请成功获得20豆)。
             本地sign算法+redis缓存Token+代理ip(自行配置，实测可行)
             变量: export jd_shopLeagueId="2b870a1a7450xxxxxxxxxxxxx" 变量值需要传入活动id
+Update: 2022/11/01 更新入会算法，内置船新入会本地算法
 """
 
 import time
@@ -462,21 +463,29 @@ def saveTask(actorUuid, shareUuid, pin, taskType, taskValue):
 
 def bindWithVender(cookie, venderId):
     try:
-        shopcard_url0 = f"https://lzdz1-isv.isvjcloud.com/dingzhi/shop/league/activity/7854908?activityId={activityId}&shareUuid={shareUuid}"
+        shopcard_url0 = f"https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/7854908?activityId={activityId}&shareUuid={shareUuid}"
         shopcard_url = f"https://shopmember.m.jd.com/shopcard/?venderId={venderId}&channel=401&returnUrl={quote_plus(shopcard_url0)}"
-        body = {"venderId": venderId, "bindByVerifyCodeFlag": 1,"registerExtend": {},"writeChildFlag":0, "channel": 401}
-        url = f'https://api.m.jd.com/client.action?appid=jd_shop_member&functionId=bindWithVender&body={json.dumps(body)}&client=H5&clientVersion=9.2.0&uuid=88888&h5st=20220614102046318%3B7327310984571307%3Bef79a%3Btk02wa31b1c7718neoZNHBp75rw4pE%2Fw7fXko2SdFCd1vIeWy005pEHdm0lw2CimWpaw3qc9il8r9xVLHp%2Bhzmo%2B4swg%3Bdd9526fc08234276b392435c8623f4a737e07d4503fab90bf2cd98d2a3a778ac%3B3.0%3B1655173246318'
-        headers = {
-            'Host': 'api.m.jd.com',
-            'Cookie': cookie,
-            'Accept-Encoding': 'gzip, deflate, br',
+        s.headers = {
             'Connection': 'keep-alive',
-            'Accept': '*/*',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'User-Agent': ua,
-            'Referer': shopcard_url
+            'Cookie': cookie,
+            'Host': 'api.m.jd.com',
+            'Referer': 'https://shopmember.m.jd.com/',
+            'Accept-Language': 'zh-Hans-CN;q=1 en-CN;q=0.9',
+            'Accept': '*/*'
         }
-        response = requests.get(url=url, headers=headers, timeout=30).text
-        res = json.loads(response)
+        s.params = {
+            'appid': 'jd_shop_member',
+            'functionId': 'bindWithVender',
+            'body': json.dumps({
+                'venderId': venderId,
+                'shopId': venderId,
+                'bindByVerifyCodeFlag': 1
+            }, separators=(',', ':'))
+        }
+        res = s.post('https://api.m.jd.com/', verify=False, timeout=30).json()
         if res['success']:
             return res['message']
     except Exception as e:
@@ -637,6 +646,8 @@ if __name__ == '__main__':
                             print(f"\t🎉🎉{venderCardName} {open_result}")
                             assStat = True
                     time.sleep(1.5)
+            checkOpenCard(shareUuid, actorUuid)
+            time.sleep(0.5)
             activityContent(pin, yunMidImageUrl, nickname)
             time.sleep(0.5)
             drawContent(pin)
