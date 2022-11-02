@@ -5,7 +5,7 @@
 默认定时不跑！只打扫和助力
 助理吗变量：多个用&号隔开
 DYJSHAREID = 'xxx&xxx&xxx'
-10 10 10 10 * https://raw.githubusercontent.com/11111129/jdpro/main/jd_makemoneyshop.js
+10 10 10 10 * https://raw.githubusercontent.com/===29===/jdpro/main/jd_makemoneyshop.js
  */
 
 const $ = new Env('特价版大赢家');
