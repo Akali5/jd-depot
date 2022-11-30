@@ -250,23 +250,23 @@ if __name__ == '__main__':
                                 drawResultPrizes = drawResult['result']['alreadyReceivedGifts']
                                 for drawResultPrize in drawResultPrizes:
                                     drawResultTotal += str(drawResultPrize['redWord']) + drawResultPrize['rearWord'] + ''
-                                print(f"🎉🎉🎉成功领取 {drawResultTotal}")
-                                MSG1 += f"\n\t🎉【{shopName}】{drawResultTotal}\n"
+                                print(f"\t🎉🎉🎉成功领取 {drawResultTotal}")
+                                MSG1 += f"\n    🎉【{shopName}】{drawResultTotal}"
                             else:
                                 print('⛈奖励领取失败1！')
-                                MSG1 += f"\n\t⛈【{shopName}】奖励领取失败1！\n"
+                                MSG1 += f"\n    ⛈【{shopName}】奖励领取失败1！"
                         else:
                             print('⛈奖励领取失败2！')
-                            MSG1 += f"\n\t⛈【{shopName}】奖励领取失败2！\n"
+                            MSG1 += f"\n    ⛈【{shopName}】奖励领取失败2！"
                     else:
                         print('⛈奖励领取失败3！')
-                        MSG1 += f"\n\t⛈【{shopName}】奖励领取失败3！\n"
+                        MSG1 += f"\n    ⛈【{shopName}】奖励领取失败3！"
             time.sleep(1)
 
         if not MSG1:
             MSG += " 💨💨💨\n"
         else:
-            MSG += MSG1
+            MSG += MSG1 + "\n"
         time.sleep(2)
 
     MSG = f"⏰{str(datetime.now())[:19]}\n" + MSG
