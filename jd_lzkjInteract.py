@@ -29,6 +29,7 @@ except ImportError as e:
     print(e)
     if "No module" in str(e):
         print("请先运行HarbourJ库依赖一键安装脚本(jd_check_dependent.py)，安装jd_sign.so依赖")
+    sys.exit()
 try:
     from jdCookie import get_cookies
     getCk = get_cookies()
@@ -436,7 +437,7 @@ if __name__ == '__main__':
         num += 1
         if num == 1:
             firstCk = cookie
-        if num % 5 == 0:
+        if num % 10 == 0:
             print("⏰等待5s,休息一下")
             time.sleep(5)
         global ua, token
@@ -445,7 +446,8 @@ if __name__ == '__main__':
             pt_pin = re.compile(r'pt_pin=(.*?);').findall(cookie)[0]
             pt_pin = unquote_plus(pt_pin)
         except IndexError:
-            pt_pin = f'用户{num}'
+            pt_pin = re.compile(r'pin=(.*?);').findall(cookie)[0]
+            pt_pin = unquote_plus(pt_pin)
         print(f'\n******开始【京东账号{num}】{pt_pin} *********\n')
         print(datetime.now())
 
@@ -505,13 +507,13 @@ if __name__ == '__main__':
                 index = 0
                 try:
                     for prizeitem in prizeListResponse['data']['prizeInfo']:
-                        index += 1
                         print(f"🎁 奖品: {prizeitem['prizeName']}, 助力人数: {prizeitem['days']}, 总数：{prizeitem['allNum']}, 剩余：{prizeitem['leftNum']}, ID: {prizeitem['id']}")
                         prizeNameList.append(f"🎁奖品:{prizeitem['prizeName']},助力人数:{prizeitem['days']},总数:{prizeitem['allNum']},剩余:{prizeitem['leftNum']}\n")
                         if prizeitem['leftNum'] > 0:
                             prizeListRecord.append((prizeitem['prizeName'], prizeitem['days'], prizeitem['id']))
+                            index += 1
                             if "京豆" in prizeitem['prizeName']:
-                                receiveIndex += 1
+                                receiveIndex = index
                     MSG += f"🎁当前活动奖品如下: \n{str(''.join(prizeNameList))}\n"
                     print(f"‼️该活动部分有且仅能领取一次奖励,默认自动领最高档豆🎁,或者手动领取\n")
                 except:
@@ -582,14 +584,14 @@ if __name__ == '__main__':
                     index = 0
                     try:
                         for prizeitem in prizeListResponse['data']['prizeInfo']:
-                            index += 1
                             if num == 1:
                                 print(f"🎁 奖品: {prizeitem['prizeName']}, 助力人数: {prizeitem['days']}, 总数：{prizeitem['allNum']}, 剩余：{prizeitem['leftNum']}, ID: {prizeitem['id']}")
                                 prizeNameList.append(f"🎁奖品:{prizeitem['prizeName']},助力人数:{prizeitem['days']},总数:{prizeitem['allNum']},剩余:{prizeitem['leftNum']}\n")
                             if prizeitem['leftNum'] > 0:
                                 prizeListRecord.append((prizeitem['prizeName'], prizeitem['days'], prizeitem['id']))
+                                index += 1
                                 if "京豆" in prizeitem['prizeName']:
-                                    receiveIndex += 1
+                                    receiveIndex = index
                         if prizeNameList:
                             MSG += f"🎁当前活动奖品如下: \n{str(''.join(prizeNameList))}\n"
                             print(f"‼️该活动部分有且仅能领取一次奖励,默认自动领最高档豆🎁,或者手动领取\n")
@@ -599,6 +601,8 @@ if __name__ == '__main__':
                     if prizeListRecord == []:
                         print('⚠️无奖品可领, 退出本程序！')
                         sys.exit()
+                    if receiveIndex < 1:
+                        receiveIndex = index
                     for prizeinfo in prizeListRecord[receiveIndex - 1:receiveIndex]:
                         if inviteSuccNum >= prizeinfo[1]:
                             print(f'CK1已达到领取条件, 开始领取 {prizeinfo[0]}')

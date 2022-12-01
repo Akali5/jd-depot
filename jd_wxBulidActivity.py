@@ -10,6 +10,7 @@ TgChat: https://t.me/HarbourSailing
 cron: 1 1 1 1 1 1
 new Env('盖楼有礼-JK');
 ActivityEntry: https://lzkj-isv.isvjcloud.com/wxBuildActivity/activity?activityId=4bde809b95ec45a3b50f7086d77f3178
+            变量: export jd_wxBulidActivityId="活动🆔"
 """
 
 import time, requests, sys, re, os, json, random
@@ -25,6 +26,7 @@ except ImportError as e:
     print(e)
     if "No module" in str(e):
         print("请先运行HarbourJ库依赖一键安装脚本(jd_check_dependent.py)，安装jd_sign.so依赖")
+    sys.exit()
 try:
     from jdCookie import get_cookies
     getCk = get_cookies()
