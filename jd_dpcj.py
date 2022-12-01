@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_dqcj.py(店铺抽奖-JK)
+File: jd_dpcj.py(店铺抽奖-JK)
 Author: HarbourJ
 Date: 2022/10/15 23:00
 TG: https://t.me/HarbourToulu
