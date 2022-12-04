@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_wxBulidActivity.py(加购有礼-监控脚本)
+File: jd_wxCollectionActivity.py(加购有礼-监控脚本)
 Author: HarbourJ
 Date: 2022/9/18 19:52
 TG: https://t.me/HarbourToulu
-TgChat: https://t.me/HarbourSailing
+TgChat: https://t.me/HarbourChat
 cron: 1 1 1 1 1 1
 new Env('加购有礼-JK')
 ActivityEntry: https://lzkj-isv.isvjd.com/wxCollectionActivity/activity2/df1bcc4c1e894444ae7579e124149999?activityId=df1bcc4c1e894444ae7579e124149999
