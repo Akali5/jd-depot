@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_opencardH1103.py(12.4-12.11 品质生活 从心出发)
+File: jd_opencardH120401.py(12.4-12.11 品质生活,从心出发)
 Author: HarbourJ
-Date: 2022/11/03 12:00
+Date: 2022/12/04 12:00
 TG: https://t.me/HarbourToulu
 TgChat: https://t.me/HarbourChat
-cron: 0 30 1,13,21 3-13 11 *
-new Env('12.4-12.11 品质生活 从心出发');
+cron: 0 30 1,13,21 4-11 12 *
+new Env('12.4-12.11 品质生活,从心出发');
 ActivityEntry: https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/activity?activityId=fda8c8e653fa48249ae41df94ce2430b
-Update: 2022/11/01 更新入会算法，内置船新入会本地算法
 """
 
 import time, requests, sys, re, os, json, random
