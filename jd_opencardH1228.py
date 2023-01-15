@@ -76,7 +76,7 @@ def getToken(ck, r=None):
         try:
             Token = r.get(f'{activityUrl.split("https://")[1].split("-")[0]}_{pt_pin}')
         except Exception as e:
-            print(f"redis get error: {str(e)}")
+            # print(f"redis get error: {str(e)}")
             Token = None
         if Token is not None:
             print(f"♻️获取缓存Token")
@@ -109,7 +109,7 @@ def getToken(ck, r=None):
                 else:
                     print("❌Token缓存失败")
             except Exception as e:
-                print(f"redis set error: {str(e)}")
+                # print(f"redis set error: {str(e)}")
                 print(f"✅获取实时Token")
             return Token_new
     except Exception as e:
@@ -459,7 +459,7 @@ def bindWithVender(cookie, venderId):
         }
         res = s.post('https://api.m.jd.com/', verify=False, timeout=30).json()
         if res['success']:
-            return res['message']
+            return res['message'], res['result']['giftInfo']
     except Exception as e:
         print(e)
 
@@ -532,97 +532,104 @@ if __name__ == '__main__':
             time.sleep(3)
             continue
         time.sleep(0.5)
-        activityCookie = getActivity()
-        time.sleep(0.5)
-        getSystemConfigForNew()
-        time.sleep(0.3)
-        getSimAct = getSimpleActInfoVo()
-        if getSimAct:
-            venderId = getSimAct['venderId']
-        else:
-            venderId = "1000015664"
-        time.sleep(0.2)
-        getPin = getMyCidPing(num, venderId)
-        if getPin is not None:
-            nickname = getPin[0]
-            secretPin = getPin[1]
+        try:
+            activityCookie = getActivity()
             time.sleep(0.5)
-            accessLogWithAD(venderId, secretPin)
-            time.sleep(0.5)
-            userInfo = getUserInfo(secretPin)
-            time.sleep(0.8)
-            nickname = userInfo[0]
-            yunMidImageUrl = userInfo[1]
-            pin = userInfo[2]
-            actContent = activityContent(pin, yunMidImageUrl, nickname)
-            if not actContent:
-                if num == 1:
-                    print("⚠️无法获取车头邀请码,退出本程序！")
-                    sys.exit()
-                continue
-            hasEnd = actContent['hasEnd']
-            if hasEnd:
-                print("活动已结束，下次早点来~")
-                sys.exit()
-            print(f"✅开启【{actContent['activityName']}】活动\n")
-            actorUuid = actContent['actorUuid']
-            # followShop = actContent['allFollowShop']
-            # takeCoupon = actContent['takeCoupon']
-            # addSku = actContent['skuAddCart']
-
-            print(f"邀请码->: {actorUuid}")
-            print(f"准备助力->: {shareUuid}")
-            time.sleep(0.5)
-            drawContent(pin)
-            time.sleep(0.5)
-            initOC = initOpenCard(pin, actorUuid, shareUuid)
-            allOpenCard = initOC['allOpenCard']
-            isAssist = initOC['openCardAndSendJd']
-            assistStatus = initOC['assistStatus']
-            openInfo = initOC['openInfo']
-            if allOpenCard:
-                print("已完成全部开卡任务")
-                print(f"助力状态-->{isAssist},{assistStatus}")
-                if assistStatus == 0:
-                    print("无法助力自己")
-                elif assistStatus == 2:
-                    print("已经助力过好友")
+            getSystemConfigForNew()
+            time.sleep(0.3)
+            getSimAct = getSimpleActInfoVo()
+            if getSimAct:
+                venderId = getSimAct['venderId']
             else:
-                print("现在去开卡")
-                unOpenCardLists = [i['venderId'] for i in openInfo if not i['openStatus']]
-                for shop in unOpenCardLists:
-                    print(f"去开卡 {shop}")
-                    venderId = shop
-                    venderCardName = getShopOpenCardInfo(cookie, venderId)
-                    open_result = bindWithVender(cookie, venderId)
-                    if open_result is not None:
-                        if "火爆" in open_result or "失败" in open_result or "解绑" in open_result:
-                            print(f"⛈{open_result}")
-                            print("\t尝试重新入会 第1次")
-                            time.sleep(1.5)
-                            continue
-                        if "加入店铺会员成功" in open_result:
-                            print(f"\t🎉🎉{venderCardName} {open_result}")
-                    time.sleep(1.5)
-                activityContent(pin, yunMidImageUrl, nickname)
+                venderId = "1000015664"
+            time.sleep(0.2)
+            getPin = getMyCidPing(num, venderId)
+            if getPin is not None:
+                nickname = getPin[0]
+                secretPin = getPin[1]
+                time.sleep(0.5)
+                accessLogWithAD(venderId, secretPin)
+                time.sleep(0.5)
+                userInfo = getUserInfo(secretPin)
+                time.sleep(0.8)
+                nickname = userInfo[0]
+                yunMidImageUrl = userInfo[1]
+                pin = userInfo[2]
+                actContent = activityContent(pin, yunMidImageUrl, nickname)
+                if not actContent:
+                    if num == 1:
+                        print("⚠️无法获取车头邀请码,退出本程序！")
+                        sys.exit()
+                    continue
+                hasEnd = actContent['hasEnd']
+                if hasEnd:
+                    print("活动已结束，下次早点来~")
+                    sys.exit()
+                print(f"✅开启【{actContent['activityName']}】活动\n")
+                actorUuid = actContent['actorUuid']
+                # followShop = actContent['allFollowShop']
+                # takeCoupon = actContent['takeCoupon']
+                # addSku = actContent['skuAddCart']
+
+                print(f"邀请码->: {actorUuid}")
+                print(f"准备助力->: {shareUuid}")
+                time.sleep(0.5)
                 drawContent(pin)
+                time.sleep(0.5)
                 initOC = initOpenCard(pin, actorUuid, shareUuid)
                 allOpenCard = initOC['allOpenCard']
                 isAssist = initOC['openCardAndSendJd']
                 assistStatus = initOC['assistStatus']
+                openInfo = initOC['openInfo']
                 if allOpenCard:
                     print("已完成全部开卡任务")
-                    print(f"助力状态-->{isAssist} {assistStatus}")
-                    print("🎉🎉🎉助力成功")
-                    inviteSuccNum += 1
-                    print(f"\t本次车头已邀请{inviteSuccNum}人")
-            time.sleep(0.5)
-            getSR = getShareRecord(pin, actorUuid)
-            if getSR:
-                print(f"🎉🎉🎉已成功邀请{len(getSR)}人")
+                    print(f"助力状态-->{isAssist},{assistStatus}")
+                    if assistStatus == 0:
+                        print("无法助力自己")
+                    elif assistStatus == 2:
+                        print("已经助力过好友")
+                else:
+                    print("现在去开卡")
+                    unOpenCardLists = [i['venderId'] for i in openInfo if not i['openStatus']]
+                    for shop in unOpenCardLists:
+                        print(f"去开卡 {shop}")
+                        venderId = shop
+                        venderCardName = getShopOpenCardInfo(cookie, venderId)
+                        open_result = bindWithVender(cookie, venderId)
+                        if open_result is not None:
+                            if "火爆" in open_result[0] or "失败" in open_result[0] or "解绑" in open_result[0]:
+                                print(f"⛈{open_result[0]}")
+                                time.sleep(1.5)
+                                continue
+                            if "加入店铺会员成功" in open_result[0]:
+                                print(f"\t🎉🎉{venderCardName} {open_result[0]}")
+                                if open_result[1]:
+                                    print(f"\t🎁获得{','.join([gift['discountString'] + gift['prizeName'] for gift in open_result[1]['giftList']])}")
+                        time.sleep(1.5)
+                    activityContent(pin, yunMidImageUrl, nickname)
+                    drawContent(pin)
+                    initOC = initOpenCard(pin, actorUuid, shareUuid)
+                    allOpenCard = initOC['allOpenCard']
+                    isAssist = initOC['openCardAndSendJd']
+                    assistStatus = initOC['assistStatus']
+                    if allOpenCard:
+                        print("已完成全部开卡任务")
+                        print(f"助力状态-->{isAssist} {assistStatus}")
+                        print("🎉🎉🎉助力成功")
+                        inviteSuccNum += 1
+                        print(f"\t本次车头已邀请{inviteSuccNum}人")
+                time.sleep(0.5)
+                getSR = getShareRecord(pin, actorUuid)
+                if getSR:
+                    print(f"🎉🎉🎉已成功邀请{len(getSR)}人")
+        except Exception as e:
+            print(str(e))
             if num == 1:
-                print(f"后面账号全部助力 {actorUuid}")
-                shareUuid = actorUuid
-                activityUrl = f"https://lzdz1-isv.isvjcloud.com/m/1000072521/9380848/{activityId}/?shareUuid={shareUuid}&adsource=null"
+                sys.exit()
+
+        if num == 1:
+            print(f"后面账号全部助力 {actorUuid}")
+            shareUuid = actorUuid
+            activityUrl = f"https://lzdz1-isv.isvjcloud.com/m/1000072521/9380848/{activityId}/?shareUuid={shareUuid}&adsource=null"
 
         time.sleep(3)
