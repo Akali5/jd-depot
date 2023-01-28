@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_phoneDiscount.py(手机折上折抽奖)
+File: jd_phoneDiscount_apple.py(手机折上折抽奖)
 Author: HarbourJ
-Date: 2022/12/29 20:00
+Date: 2022/01/28 00:00
 TG: https://t.me/HarbourToulu
-cron: 1 1 1 1 1 1
+cron: 7 7 7 7 7
 new Env('手机折上折抽奖');
-活动入口: https://sjtx-dz.isvjcloud.com/phone_discount/?invite_id=63ad1171068bd98098&source=test&baseInfo=LM6HIKdH%2Cbrand_two
+活动入口: https://sjtx-dz.isvjcloud.com/phone_discount_pl/?invite_id=63d491e3df09d58495&source=undefind&baseInfo=nT1WpQ72%2Capplenew
 """
 
 
@@ -24,7 +24,7 @@ try:
 except ImportError as e:
     print(e)
     if "No module" in str(e):
-        print("请先运行Faker库依赖一键安装脚本(jd_check_dependent.py)，安装jd_sign.so依赖")
+        print("请先运行HarbourJ库依赖一键安装脚本(jd_check_dependent.py)，安装jd_sign.so依赖")
     sys.exit()
 try:
     from jdCookie import get_cookies
@@ -36,41 +36,12 @@ except:
 redis_url = os.environ.get("redis_url") if os.environ.get("redis_url") else "172.17.0.1"
 redis_port = os.environ.get("redis_port") if os.environ.get("redis_port") else "6379"
 redis_pwd = os.environ.get("redis_pwd") if os.environ.get("redis_pwd") else ""
-baseInfo = os.environ.get("baseInfo") if os.environ.get("baseInfo") else ""
 
-if not baseInfo:
-    print('未设置export baseInfo="品牌编号",默认运行第九个任务brand_ten')
-    baseInfo = "8AHIKfsi%2Cbrand_ten"
-else:
-    if baseInfo == "1":
-        baseInfo = "HXu94GdF%2Cbrand_one"
-    elif baseInfo == "2":
-        baseInfo = "LM6HIKdH%2Cbrand_two"
-    elif baseInfo == "3":
-        baseInfo = "KmwM4N4L%2Cbrand_three"
-    elif baseInfo == "4":
-        baseInfo = "8pTg6fXi%2Cbrand_four"
-    elif baseInfo == "5":
-        baseInfo = "Sr5zisvb%2Cbrand_five"
-    elif baseInfo == "6":
-        baseInfo = "B0cRJYyC%2Cbrand_six"
-    elif baseInfo == "7":
-        baseInfo = "ZRco56US%2Cbrand_seven"
-    elif baseInfo == "8":
-        baseInfo = "4tqyLzac%2Cbrand_eight"
-    elif baseInfo == "9":
-        baseInfo = "PIZ1W0ap%2Cbrand_nine"
-    elif baseInfo == "10":
-        baseInfo = "8AHIKfsi%2Cbrand_ten"
-    elif baseInfo == "11":
-        baseInfo = "zvNssjdW%2Cbrand_eleven"
-    else:
-        print('export baseInfo="品牌编号"设置有误,默认运行第九个任务brand_ten')
-        baseInfo = "8AHIKfsi%2Cbrand_ten"
+baseInfo = "nT1WpQ72%2Capplenew"
 appKey = baseInfo.split('%2C')[0]
 brand = baseInfo.split('%2C')[1]
 
-activity_url = f"https://sjtx-dz.isvjcloud.com/phone_discount/?invite_id=63ad1171068bd98098&source=test&baseInfo={baseInfo}"
+activity_url = f"https://sjtx-dz.isvjcloud.com/phone_discount_pl/?invite_id=63ad1171068bd98098&source=undefind&baseInfo={baseInfo}"
 print(f"【🛳活动入口】{activity_url}")
 
 def redis_conn():
@@ -162,21 +133,6 @@ def randomString(e, flag=False):
     n = [random.choice(t) for _ in range(e)]
     return ''.join(n)
 
-def refresh_cookies(res):
-    if res.cookies:
-        cookies = res.cookies.get_dict()
-        set_cookie = [(set_cookie + "=" + cookies[set_cookie]) for set_cookie in cookies]
-        global activityCookie
-        activityCookieMid = [i for i in activityCookie.split(';') if i != '']
-        for i in activityCookieMid:
-            for x in set_cookie:
-                if i.split('=')[0] == x.split('=')[0]:
-                    if i.split('=')[1] != x.split('=')[1]:
-                        activityCookieMid.remove(i)
-        activityCookie = ''.join(
-            sorted([(set_cookie + ";") for set_cookie in list(set(activityCookieMid + set_cookie))]))
-        # print("刷新cookie", activityCookie)
-
 def getActivity():
     url = activityUrl
     headers = {
@@ -198,7 +154,7 @@ def getActivity():
         sys.exit()
 
 def getAuth():
-    url = f"https://sjtx-dz.isvjcloud.com/auth/jos?token={token}&jd_source=01&source=test&is_share=1"
+    url = f"https://sjtx-dz.isvjcloud.com/auth/jos?token={token}&jd_source=01&source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -220,7 +176,7 @@ def getAuth():
         print(f"⚠️{res}")
 
 def getUserInfo(authToken):
-    url = "https://sjtx-dz.isvjcloud.com/phone-discount-api/get_user_info?source=test&is_share=1"
+    url = "https://sjtx-dz.isvjcloud.com/phone-discount-apple-api/get_user_info?source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -236,6 +192,7 @@ def getUserInfo(authToken):
     }
     response = requests.request("GET", url, headers=headers)
     res = response.json()
+    print("getUserInfo:", res)
     try:
         code = res['code']
         is_acvite_complete = res['is_acvite_complete']
@@ -247,7 +204,7 @@ def getUserInfo(authToken):
         print(res)
 
 def getFriendList(authToken):
-    url = "https://sjtx-dz.isvjcloud.com/phone-discount-api/get_friend_list?source=test&is_share=1"
+    url = "https://sjtx-dz.isvjcloud.com/phone-discount-apple-api/get_friend_list?source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -272,7 +229,7 @@ def getFriendList(authToken):
     return friendList
 
 def inviteFriend(inviter_id, authToken):
-    url = "https://sjtx-dz.isvjcloud.com/phone-discount-api/invite_friend?source=test&is_share=1"
+    url = "https://sjtx-dz.isvjcloud.com/phone-discount-apple-api/invite_friend?source=undefind&is_share=1"
     payload = '{"inviter_id":"' + inviter_id + '","channel":2}'
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
@@ -290,10 +247,11 @@ def inviteFriend(inviter_id, authToken):
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     res = response.json()
+    print("inviteFriend:", res)
     return res
 
 def invite(authToken):
-    url = f"https://sjtx-dz.isvjcloud.com/burying/stat?action=invite&source=test&is_share=1"
+    url = f"https://sjtx-dz.isvjcloud.com/burying/stat?action=invite&source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -313,7 +271,7 @@ def invite(authToken):
     return res
 
 def inviteFriendNew(inviter_id, authToken):
-    url = "https://sjtx-dz.isvjcloud.com/phone-discount-api/invite_friend_new?source=test&is_share=1"
+    url = "https://sjtx-dz.isvjcloud.com/phone-discount-apple-api/invite_friend_new?source=undefind&is_share=1"
     payload = '{"inviter_id":"' + inviter_id + '","channel":2}'
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
@@ -331,10 +289,11 @@ def inviteFriendNew(inviter_id, authToken):
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     res = response.json()
+    print("inviteFriendNew:", res)
     return res
 
 def clickHomeGetPrize(authToken):
-    url = f"https://sjtx-dz.isvjcloud.com/burying/stat?action=click_home_get_prize&source=test&is_share=1"
+    url = f"https://sjtx-dz.isvjcloud.com/burying/stat?action=click_home_get_prize&source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -354,7 +313,7 @@ def clickHomeGetPrize(authToken):
     return res
 
 def clickEffectGetPrize(authToken):
-    url = f"https://sjtx-dz.isvjcloud.com/burying/stat?action=click_effect_get_prize&source=test&is_share=1"
+    url = f"https://sjtx-dz.isvjcloud.com/burying/stat?action=click_effect_get_prize&source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -374,7 +333,7 @@ def clickEffectGetPrize(authToken):
     return res
 
 def homeSendPrizes(authToken):
-    url = f"https://sjtx-dz.isvjcloud.com/phone-discount-api/home_send_prizes?source=test&is_share=1"
+    url = f"https://sjtx-dz.isvjcloud.com/phone-discount-apple-api/home_send_prizes?source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -394,7 +353,7 @@ def homeSendPrizes(authToken):
     return res
 
 def clickCouponSenPrize(authToken):
-    url = f"https://sjtx-dz.isvjcloud.com/burying/stat?action=click_coupon_send_prize&source=test&is_share=1"
+    url = f"https://sjtx-dz.isvjcloud.com/burying/stat?action=click_coupon_send_prize&source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -414,7 +373,7 @@ def clickCouponSenPrize(authToken):
     return res
 
 def userClickInvite(authToken):
-    url = f"https://sjtx-dz.isvjcloud.com/phone-discount-api/user_click_invite?source=test&is_share=1"
+    url = f"https://sjtx-dz.isvjcloud.com/phone-discount-apple-api/user_click_invite?source=undefind&is_share=1"
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
         'Accept': 'application/json, text/plain, */*',
@@ -432,7 +391,7 @@ def userClickInvite(authToken):
     requests.request("POST", url, headers=headers)
 
 def inviteDrawPrize(invite_type, authToken):
-    url = "https://sjtx-dz.isvjcloud.com/phone-discount-api/invite_draw_prize?source=test&is_share=1"
+    url = "https://sjtx-dz.isvjcloud.com/phone-discount-apple-api/invite_draw_prize?source=undefind&is_share=1"
     payload = '{"invite_type":' + invite_type + '}'
     headers = {
         'Host': 'sjtx-dz.isvjcloud.com',
@@ -467,10 +426,10 @@ if __name__ == '__main__':
     try:
         shareUuid = remote_redis(brand, 1)
         if not shareUuid:
-            shareUuid = "63ad1171068bd98098"
+            shareUuid = "63d491e3df09d58495"
     except:
-        shareUuid = "63ad1171068bd98098"
-    activityUrl = f"https://sjtx-dz.isvjcloud.com/phone_discount/?invite_id={shareUuid}&source=test&baseInfo={baseInfo}"
+        shareUuid = "63d491e3df09d58495"
+    activityUrl = f"https://sjtx-dz.isvjcloud.com/phone_discount_pl/?invite_id={shareUuid}&source=undefind&baseInfo={baseInfo}"
     allCookies = cks
 
     num = 0
@@ -511,7 +470,6 @@ if __name__ == '__main__':
                 sys.exit()
             else:
                 print("📝移除火爆账号")
-                allCKs.remove()
                 time.sleep(1.5)
                 continue
         time.sleep(0.2)
@@ -545,117 +503,49 @@ if __name__ == '__main__':
                         print(f"抽奖结果: {drawPrize}")
                 sys.exit()
         time.sleep(0.2)
-        if user_new == 1: # 新用户
-            invite(authToken)
-            time.sleep(0.2)
-            inviteNewInfo = inviteFriendNew(shareUuid, authToken)
-            if "prize_info" in inviteNewInfo:
-                prize_info = [f"{x['user_prize']['prize_name']}{x['user_prize']['prize_info']['quota']}个" for x in inviteNewInfo['prize_info']]
-                if prize_info:
-                    print(f"🎁获得{','.join(prize_info)}")
-                else:
-                    print("来晚了没水了💨💨💨")
-                inviteSuccNum += 1
-                print(f"🎉助力成功！已邀请{inviteSuccNum}人")
-            else:
-                print(inviteNewInfo['message'])
-                clickHomeGetPrize(authToken)
-                time.sleep(0.2)
-                clickEffectGetPrize(authToken)
-                time.sleep(0.2)
-                homePrizes = homeSendPrizes(authToken)
-                if "prize_info" in homePrizes:
-                    prize_info = [f"{x['user_prize']['prize_name']}{x['user_prize']['prize_info']['quota']}个" for x in homePrizes['prize_info']]
-                    print(f"🎁获得{','.join(prize_info)}")
-                else:
-                    print(homePrizes)
-            time.sleep(0.2)
-            userClickInvite(authToken)
-
-            if inviteSuccNum >= 10:
-                token = getToken(firstCk, r)
-                time.sleep(0.2)
-                getActivity()
-                time.sleep(0.2)
-                authToken0 = getAuth()
-                time.sleep(0.2)
-                getUserInfo(authToken0)
-                time.sleep(0.2)
-                for i in range(2):
-                    invite_type = i + 1
-                    print(f"开始第{invite_type}次抽奖")
-                    drawPrize0 = inviteDrawPrize(str(invite_type), authToken0)
-                    try:
-                        if "prize_info" not in drawPrize0:
-                            print(drawPrize0['message'])
-                        else:
-                            prize_info = f"{drawPrize0['prize_info']['user_prize']['prize_name']}{drawPrize0['prize_info']['user_prize']['prize_info']['quota']}"
-                            print(f"🎁抽奖获得:{prize_info}")
-                    except:
-                        print(drawPrize0)
-                sys.exit()
-        else:
-            inviteInfo = inviteFriend(shareUuid, authToken)
-            if "prize_info" not in inviteInfo:
-                print(inviteInfo['message'])
-                if "已达到好友邀请上限" in inviteInfo['message']:
-                    if num == 1:
-                        shareUuid = shareUuid1
-                        activityUrl = f"https://sjtx-dz.isvjcloud.com/phone_discount/?invite_id={shareUuid}&source=test&baseInfo={baseInfo}"
-                        print(f"🤖后面的号全部助力: {shareUuid}")
-                        continue
-                    else:
-                        token = getToken(firstCk, r)
-                        time.sleep(0.2)
-                        getActivity()
-                        time.sleep(0.2)
-                        authToken0 = getAuth()
-                        time.sleep(0.2)
-                        getUserInfo(authToken0)
-                        time.sleep(0.2)
-                        for i in range(2):
-                            invite_type = i + 1
-                            print(f"开始第{invite_type}次抽奖")
-                            drawPrize0 = inviteDrawPrize(str(invite_type), authToken0)
-                            try:
-                                if "prize_info" not in drawPrize0:
-                                    print(drawPrize0['message'])
-                                else:
-                                    prize_info = f"{drawPrize0['prize_info']['user_prize']['prize_name']}{drawPrize0['prize_info']['user_prize']['prize_info']['quota']}"
-                                    print(f"🎁抽奖获得:{prize_info}")
-                            except:
-                                print(drawPrize0)
-                        sys.exit()
-            else:
-                inviteSuccNum += 1
-                print(f"🎉助力成功！已邀请{inviteSuccNum}人")
-                prize_info = [f"{x['user_prize']['prize_name']}{x['user_prize']['prize_info']['quota']}个" for x in inviteInfo['prize_info']]
+        invite(authToken)
+        time.sleep(0.2)
+        inviteNewInfo = inviteFriendNew(shareUuid, authToken)
+        if "prize_info" in inviteNewInfo:
+            prize_info = [f"{x['user_prize']['prize_name']}{x['user_prize']['prize_info']['quota']}个" for x in inviteNewInfo['prize_info']]
+            if prize_info:
                 print(f"🎁获得{','.join(prize_info)}")
-                if inviteSuccNum >= 10:
-                    token = getToken(firstCk, r)
-                    time.sleep(0.2)
-                    getActivity()
-                    time.sleep(0.2)
-                    authToken0 = getAuth()
-                    time.sleep(0.2)
-                    getUserInfo(authToken0)
-                    time.sleep(0.2)
-                    for i in range(2):
-                        invite_type = i + 1
-                        print(f"开始第{invite_type}次抽奖")
-                        drawPrize0 = inviteDrawPrize(str(invite_type), authToken0)
-                        try:
-                            if "prize_info" not in drawPrize0:
-                                print(drawPrize0['message'])
-                            else:
-                                prize_info = f"{drawPrize0['prize_info']['user_prize']['prize_name']}{drawPrize0['prize_info']['user_prize']['prize_info']['quota']}"
-                                print(f"🎁抽奖获得:{prize_info}")
-                        except:
-                            print(drawPrize0)
-                    sys.exit()
+            else:
+                print("来晚了没水了💨💨💨")
+            inviteSuccNum += 1
+            print(f"🎉助力成功！已邀请{inviteSuccNum}人")
+        else:
+            print(inviteNewInfo['message'])
+
+        time.sleep(0.2)
+        userClickInvite(authToken)
+
+        if inviteSuccNum >= 10:
+            token = getToken(firstCk, r)
+            time.sleep(0.2)
+            getActivity()
+            time.sleep(0.2)
+            authToken0 = getAuth()
+            time.sleep(0.2)
+            getUserInfo(authToken0)
+            time.sleep(0.2)
+            for i in range(2):
+                invite_type = i + 1
+                print(f"开始第{invite_type}次抽奖")
+                drawPrize0 = inviteDrawPrize(str(invite_type), authToken0)
+                try:
+                    if "prize_info" not in drawPrize0:
+                        print(drawPrize0['message'])
+                    else:
+                        prize_info = f"{drawPrize0['prize_info']['user_prize']['prize_name']}{drawPrize0['prize_info']['user_prize']['prize_info']['quota']}"
+                        print(f"🎁抽奖获得:{prize_info}")
+                except:
+                    print(drawPrize0)
+            sys.exit()
+
         if num == 1:
             shareUuid = shareUuid1
-            activityUrl = f"https://sjtx-dz.isvjcloud.com/phone_discount/?invite_id={shareUuid}&source=test&baseInfo={baseInfo}"
+            activityUrl = f"https://sjtx-dz.isvjcloud.com/phone_discount_pl/?invite_id={shareUuid}&source=undefind&baseInfo={baseInfo}"
             print(f"🤖后面的号全部助力: {shareUuid}")
 
         time.sleep(2)

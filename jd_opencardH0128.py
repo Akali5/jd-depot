@@ -6,7 +6,7 @@ File: jd_opencardH1228.py(12.28-1.28 品牌会员年度盛典)
 Author: HarbourJ
 Date: 2022/12/28 21:00
 TG: https://t.me/HarbourToulu
-cron: 1 1 1 1 1 1
+cron: 0 0 * 28 1 *
 new Env('12.28-1.28 品牌会员年度盛典');
 ActivityEntry: https://lzdz1-isv.isvjcloud.com/m/1000072521/9380848/dzd5d739ab4fa4916380c44baa9c45/?shareUuid=3d246317319f4cefbe8e57a6a52958dc&adsource=null
 Description: 开卡5 邀请10
