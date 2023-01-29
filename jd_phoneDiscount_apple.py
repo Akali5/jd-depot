@@ -192,7 +192,6 @@ def getUserInfo(authToken):
     }
     response = requests.request("GET", url, headers=headers)
     res = response.json()
-    print("getUserInfo:", res)
     try:
         code = res['code']
         is_acvite_complete = res['is_acvite_complete']
@@ -289,7 +288,6 @@ def inviteFriendNew(inviter_id, authToken):
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     res = response.json()
-    print("inviteFriendNew:", res)
     return res
 
 def clickHomeGetPrize(authToken):
