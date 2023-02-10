@@ -3,7 +3,7 @@
 10豆 
 入口：排行榜-宝藏榜
 updatetime: 2022/9/29
-author: https://github.com/11111129/jdpro
+author: https://github.com/6dylan6/jdpro
  */
 
 const $ = new Env('京东宝藏榜');
