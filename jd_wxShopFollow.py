@@ -400,11 +400,10 @@ def getPrize(pin):
             priceName = data['name']
             return priceName
         else:
-            errorMessage = data['errorMessage']
-            print(f"⛈{errorMessage}")
-            if "不足" in errorMessage:
-                sys.exit()
-            return errorMessage
+            if data['canDrawTimes'] > 0:
+                return 9
+            else:
+                return 99
     else:
         print(f"⛈{res['errorMessage']}")
         if '奖品已发完' in res['errorMessage']:
@@ -533,12 +532,12 @@ if __name__ == '__main__':
             time.sleep(0.15)
             for i in range(3):
                 priceName = getPrize(secretPin)
-                if "擦肩" in priceName:
+                if priceName == 9:
                     time.sleep(0.2)
                     continue
                 else:
                     break
-            if "擦肩" in priceName:
+            if "火爆" in str(priceName) or priceName == 99 or priceName is None:
                 print(f"😭获得💨💨💨")
             else:
                 print(f"🎉获得{priceName}")
