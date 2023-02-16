@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 """
-File: jd_opencardH0208.py(2.8-2.15 心意之选 为挚爱献礼)
+File: jd_opencardH0217.py(2.17-2.24春意萌动 万物向新)
 Author: HarbourJ
 Date: 2023/2/8 00:00
 TG: https://t.me/HarbourToulu
-cron: 7 7 7 7 7
-new Env('2.8-2.15 心意之选 为挚爱献礼(金币)');
-ActivityEntry: https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/activity?activityId=25fee1e103434b66bb109d2042e673cb
+cron: 0 0 */3 17-24 2 *
+new Env('2.17-2.24春意萌动 万物向新(金币)');
+ActivityEntry: https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/activity?activityId=6547fdecdaac4a86b402393a4c6aca55
 """
 
 import time, requests, sys, re, os, json, random
@@ -23,7 +23,7 @@ try:
 except ImportError as e:
     print(e)
     if "No module" in str(e):
-        print("请先运行Faker库依赖一键安装脚本(jd_check_dependent.py)，安装jd_sign.so依赖")
+        print("请先运行HarbourJ库依赖一键安装脚本(jd_check_dependent.py)，安装jd_sign.so依赖")
     sys.exit()
 try:
     from jdCookie import get_cookies
@@ -37,7 +37,7 @@ redis_port = os.environ.get("redis_port") if os.environ.get("redis_port") else "
 redis_pwd = os.environ.get("redis_pwd") if os.environ.get("redis_pwd") else ""
 inviterUuid = os.environ.get("jd_joinCommon_uuid") if os.environ.get("jd_joinCommon_uuid") else ""
 
-activityId = "25fee1e103434b66bb109d2042e673cb"
+activityId = "6547fdecdaac4a86b402393a4c6aca55"
 shopId = "1000428684"
 activity_url = f"https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/5929859?activityId={activityId}&shareUuid={inviterUuid}&adsource=null&shareuserid4minipg=null&lng=00.000000&lat=00.000000&sid=&un_area=&&shopid={shopId}"
 print(f"【🛳活动入口】https://lzdz1-isv.isvjcloud.com/dingzhi/joinCommon/activity/5929859?activityId={activityId}\n\n🤖本活动为金币邀请,仅开卡与加购,不邀请‼️\n\n🤖本活动为金币邀请,仅开卡与加购,不邀请‼️\n\n🤖本活动为金币邀请,仅开卡与加购,不邀请‼️\n\n")
